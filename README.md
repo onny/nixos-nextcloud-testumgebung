@@ -1,5 +1,6 @@
 To run development environment simply execute
-
-  make
-
+```
+nix develop
+make
+```
 on NixOS :)
