@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, config, ... }: {
 
   nixpkgs = {
     overlays = [
@@ -7,6 +7,7 @@
         nextcloud25 = super.nextcloud25.overrideAttrs (oldAttrs: rec {
           installPhase = oldAttrs.installPhase + ''
             rm -r $out/apps/firstrunwizard
+            rm -r $out/apps/password_policy
           '';
         });
       })
@@ -52,20 +53,39 @@
     };
   };
 
+  # Creating mail users and inboxes
   systemd.services.maddy-accounts = {
     script = ''
-      set -eu
-      ${pkgs.coreutils}/bin/echo "Creating mail users and inboxes"
       ${pkgs.maddy}/bin/maddyctl creds create --password test123 user1@localhost
       ${pkgs.maddy}/bin/maddyctl imap-acct create user1@localhost
       ${pkgs.maddy}/bin/maddyctl creds create --password test123 user2@localhost
       ${pkgs.maddy}/bin/maddyctl imap-acct create user2@localhost
+      ${pkgs.maddy}/bin/maddyctl creds create --password test123 admin@localhost
+      ${pkgs.maddy}/bin/maddyctl imap-acct create admin@localhost
     '';
     serviceConfig = {
       Type = "oneshot";
       User= "maddy";
     };
     after = [ "maddy.service" ];
+    wantedBy = [ "multi-user.target" ];
+  };
+
+  # Creating Nextcloud users and configure mail adresses
+  systemd.services.nextcloud-add-user = {
+    script = ''
+      export OC_PASS="test123"
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:add --password-from-env user1
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting user1 settings email "user1@localhost"
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:add --password-from-env user2
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting user2 settings email "user2@localhost"
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting admin settings email "admin@localhost"
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      User= "nextcloud";
+    };
+    after = [ "nextcloud-setup.service" ];
     wantedBy = [ "multi-user.target" ];
   };
 
