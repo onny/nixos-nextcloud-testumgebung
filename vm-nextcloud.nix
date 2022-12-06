@@ -3,7 +3,8 @@
   nixpkgs = {
     overlays = [
       (self: super: {
-        # Remove first run wizard from Nextcloud package
+        # Remove first run wizard and password policy check from Nextcloud
+        # package
         nextcloud25 = super.nextcloud25.overrideAttrs (oldAttrs: rec {
           installPhase = oldAttrs.installPhase + ''
             rm -r $out/apps/firstrunwizard
@@ -14,6 +15,7 @@
     ];
   };
 
+  # Setup Nextcloud including apps
   services.nextcloud = {
     enable = true;
     package = pkgs.nextcloud25;
@@ -33,20 +35,27 @@
       };
       mail = pkgs.nextcloud25Packages.apps.mail;
     };
+    extraOptions = {
+      mail_smtpmode = "sendmail";
+      mail_sendmailmode = "pipe";
+    };
   };
 
+  # Setup mail server
   services.maddy = {
     enable = true;
     hostname = "localhost";
     primaryDomain = "localhost";
   };
 
+  # Configure local mail delivery
   programs.msmtp = {
     enable = true;
     accounts.default = {
       host = "localhost";
-      tls = false;
       port = 587;
+      auth = "login";
+      tls = "off";
       from = "admin@localhost";
       user = "admin@localhost";
       password = "test123";
