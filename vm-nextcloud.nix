@@ -1,4 +1,4 @@
-{ pkgs, config, ... }: {
+{ pkgs, config, lib, options, ... }: {
 
   nixpkgs = {
     overlays = [
@@ -46,6 +46,10 @@
     enable = true;
     hostname = "localhost";
     primaryDomain = "localhost";
+    # Disable any sender validation checks
+    config = lib.concatStrings (
+      builtins.match "(.*)authorize_sender.*identity\n[ ]+\}(.*)" options.services.maddy.config.default
+    );
   };
 
   # Configure local mail delivery
