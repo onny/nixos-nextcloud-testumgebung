@@ -1,6 +1,4 @@
-{ pkgs, config, lib, options, ... }:
-  with import <nixpkgs> {};
-{
+{ pkgs, config, lib, options, ... }:{
 
   nixpkgs = {
     overlays = [
@@ -31,20 +29,23 @@
         url = "https://github.com/nextcloud-releases/circles/releases/download/0.21.4/circles-0.21.4.tar.gz";
         sha256 = "sha256-gkW9jZvXS86ScuM434mUbvQajYKwHVjm9PfTMNgHL/Q=";
       };
-      calendar = pkgs.stdenvNoCC.mkDerivation rec {
-        name = "calendar";
-        src = /home/onny/projects/calendar;
-        unpackPhase = ''cp -r --no-preserve=mode $src/* .'';
-        dontBuild = true;
-        installPhase = ''cp -r --no-preserve=mode . $out/'';
-      };
       mail = pkgs.nextcloud25Packages.apps.mail;
     };
     extraOptions = {
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
+      debug = true;
+      trusted_domains = [ "10.100.100.1" ];
     };
   };
+  # Mount our local development app repository into the VM
+  nixos-shell.mounts.extraMounts = {
+    "/var/lib/nextcloud/store-apps/calendar" = {
+      target = /home/onny/projects/calendar;
+      cache = "none";
+    };
+  };
+
 
   # Setup mail server
   services.maddy = {
@@ -98,6 +99,8 @@
       ${config.services.nextcloud.occ}/bin/nextcloud-occ user:add --password-from-env user2
       ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting user2 settings email "user2@localhost"
       ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting admin settings email "admin@localhost"
+
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ app:enable calendar
     '';
     serviceConfig = {
       Type = "oneshot";
@@ -106,6 +109,11 @@
     after = [ "nextcloud-setup.service" ];
     wantedBy = [ "multi-user.target" ];
   };
+
+  # FIXME debugging
+  environment.systemPackages = [ pkgs.php82 ];
+
+  system.stateVersion = "21.11";
 
   documentation.info.enable = false;
   documentation.man.enable = false;
