@@ -44,8 +44,12 @@
       target = /home/onny/projects/calendar;
       cache = "none";
     };
+    "/var/lib/nextcloud/server" = {
+      target = /home/onny/projects/server;
+      cache = "none";
+    };
   };
-
+  services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";
 
   # Setup mail server
   services.maddy = {
