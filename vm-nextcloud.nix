@@ -24,13 +24,6 @@
       adminuser = "admin";
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
     };
-    extraApps = {
-      circles = pkgs.fetchNextcloudApp rec {
-        url = "https://github.com/nextcloud-releases/circles/releases/download/0.21.4/circles-0.21.4.tar.gz";
-        sha256 = "sha256-gkW9jZvXS86ScuM434mUbvQajYKwHVjm9PfTMNgHL/Q=";
-      };
-      mail = pkgs.nextcloud25Packages.apps.mail;
-    };
     extraOptions = {
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
@@ -105,6 +98,10 @@
       ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting admin settings email "admin@localhost"
 
       ${config.services.nextcloud.occ}/bin/nextcloud-occ app:enable calendar
+
+      rm /var/lib/nextcloud/apps
+      ln -s /var/lib/nextcloud/server/apps /var/lib/nextcloud/apps
+      ln -fs /var/lib/nextcloud/config /var/lib/nextcloud/server/config
     '';
     serviceConfig = {
       Type = "oneshot";
@@ -113,9 +110,6 @@
     after = [ "nextcloud-setup.service" ];
     wantedBy = [ "multi-user.target" ];
   };
-
-  # FIXME debugging
-  environment.systemPackages = [ pkgs.php82 ];
 
   system.stateVersion = "21.11";
 
