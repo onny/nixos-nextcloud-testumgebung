@@ -1,0 +1,3 @@
+[submodule "calendar"]
+	path = calendar
+	url = https://github.com/nextcloud/calendar.git

@@ -6,6 +6,7 @@
         # Remove first run wizard and password policy check from Nextcloud
         # package
         nextcloud25 = super.nextcloud25.overrideAttrs (oldAttrs: rec {
+          src = ./server;
           installPhase = oldAttrs.installPhase + ''
             rm -r $out/apps/firstrunwizard
             rm -r $out/apps/password_policy
@@ -34,11 +35,11 @@
   # Mount our local development app repository into the VM
   nixos-shell.mounts.extraMounts = {
     "/var/lib/nextcloud/store-apps/calendar" = {
-      target = /home/onny/projects/calendar;
+      target = ./calendar;
       cache = "none";
     };
     "/var/lib/nextcloud/server" = {
-      target = /home/onny/projects/server;
+      target = ./server;
       cache = "none";
     };
   };
@@ -101,7 +102,7 @@
 
       rm /var/lib/nextcloud/apps
       ln -s /var/lib/nextcloud/server/apps /var/lib/nextcloud/apps
-      ln -fs /var/lib/nextcloud/config /var/lib/nextcloud/server/config
+      #ln -fs /var/lib/nextcloud/config /var/lib/nextcloud/server/config
     '';
     serviceConfig = {
       Type = "oneshot";
