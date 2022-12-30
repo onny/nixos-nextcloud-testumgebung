@@ -6,11 +6,15 @@
         # Remove first run wizard and password policy check from Nextcloud
         # package
         nextcloud25 = super.nextcloud25.overrideAttrs (oldAttrs: rec {
+          patches = [];
           src = ./server;
           installPhase = oldAttrs.installPhase + ''
-            rm -r $out/apps/firstrunwizard
-            rm -r $out/apps/password_policy
+            mkdir -p $out/
+            cp -R . $out/
+            #rm -r $out/apps/firstrunwizard
+            #rm -r $out/apps/password_policy
           '';
+          dontBuild = true;
         });
       })
     ];
