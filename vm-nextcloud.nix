@@ -1,4 +1,16 @@
+# Todo
+# - Creating symlink to config dir
+# - Patch chgrp in Nextcloud module
+
 { pkgs, config, lib, options, ... }:{
+
+  disabledModules = [
+    "services/web-apps/nextcloud.nix"
+  ];
+
+  imports = [
+    ./nextcloud.nix
+  ];
 
   nixpkgs = {
     overlays = [
@@ -29,6 +41,7 @@
       adminuser = "admin";
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
     };
+    appstoreEnable = false;
     extraOptions = {
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
@@ -36,11 +49,11 @@
       trusted_domains = [ "10.100.100.1" ];
     };
   };
-  # Mount our local development app repository into the VM
+  # Mount our local development repositories into the VM
   nixos-shell.mounts.extraMounts = {
     "/var/lib/nextcloud/store-apps/calendar" = {
-      target = ./calendar;
-      cache = "none";
+       target = ./calendar;
+       cache = "none";
     };
     "/var/lib/nextcloud/server" = {
       target = ./server;
@@ -106,7 +119,6 @@
 
       rm /var/lib/nextcloud/apps
       ln -s /var/lib/nextcloud/server/apps /var/lib/nextcloud/apps
-      #ln -fs /var/lib/nextcloud/config /var/lib/nextcloud/server/config
     '';
     serviceConfig = {
       Type = "oneshot";
