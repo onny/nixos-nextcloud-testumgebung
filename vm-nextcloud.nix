@@ -46,6 +46,7 @@
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
       debug = true;
+      logLevel = 0;
       trusted_domains = [ "10.100.100.1" ];
     };
   };
@@ -67,6 +68,7 @@
     enable = true;
     hostname = "localhost";
     primaryDomain = "localhost";
+    localDomains = [ "$(primary_domain)" "10.100.100.1" ];
     # Disable any sender validation checks
     config = lib.concatStrings (
       builtins.match "(.*)authorize_sender.*identity\n[ ]+\}(.*)" options.services.maddy.config.default
