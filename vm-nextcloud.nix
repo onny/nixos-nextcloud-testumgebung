@@ -52,13 +52,17 @@
   };
   # Mount our local development repositories into the VM
   nixos-shell.mounts.extraMounts = {
+    "/var/lib/nextcloud/server" = {
+      target = ./server;
+      cache = "none";
+    };
     "/var/lib/nextcloud/store-apps/calendar" = {
        target = ./calendar;
        cache = "none";
     };
-    "/var/lib/nextcloud/server" = {
-      target = ./server;
-      cache = "none";
+    "/var/lib/nextcloud/server/3rdparty/sabre/dav" = {
+       target = ./dav;
+       cache = "none";
     };
   };
   services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";

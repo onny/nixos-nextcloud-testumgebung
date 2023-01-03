@@ -4,3 +4,6 @@
 [submodule "server"]
 	path = server
 	url = https://github.com/nextcloud/server.git
+[submodule "dav"]
+	path = dav
+	url = https://github.com/sabre-io/dav.git
