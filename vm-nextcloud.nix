@@ -2,7 +2,7 @@
 # - Creating symlink to config dir
 # - Patch chgrp in Nextcloud module
 
-{ pkgs, config, lib, options, ... }:{
+{ pkgs, config, lib, options, ... }: {
 
   disabledModules = [
     "services/web-apps/nextcloud.nix"
@@ -40,6 +40,16 @@
     config = {
       adminuser = "admin";
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
+    };
+    phpPackage = lib.mkForce (pkgs.php.buildEnv {
+      extensions = ({ enabled, all }: enabled ++ (with all; [
+        xdebug
+      ]));
+    });
+    phpOptions = {
+      "xdebug.mode" = "debug";
+      "xdebug.client_host" = "10.0.2.2";
+      "xdebug.client_port" = "9000";
     };
     appstoreEnable = false;
     extraOptions = {
