@@ -50,6 +50,8 @@
       "xdebug.mode" = "debug";
       "xdebug.client_host" = "10.0.2.2";
       "xdebug.client_port" = "9000";
+      "xdebug.start_with_request" = "yes";
+      "xdebug.idekey" = "ECLIPSE";
     };
     appstoreEnable = false;
     extraOptions = {
