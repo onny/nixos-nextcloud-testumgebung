@@ -11,6 +11,7 @@
             "port": 9000,
             "pathMappings": {
                 "/var/lib/nextcloud/server/3rdparty/sabre/dav": "${workspaceRoot}/dav",
+                "/var/lib/nextcloud/server/3rdparty/sabre/vobject": "${workspaceRoot}/vobject",
             },              
         }
     ]

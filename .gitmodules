@@ -7,3 +7,6 @@
 [submodule "dav"]
 	path = dav
 	url = https://github.com/sabre-io/dav.git
+[submodule "vobject"]
+	path = vobject
+	url = git@github.com:sabre-io/vobject.git
