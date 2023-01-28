@@ -12,6 +12,9 @@
             "pathMappings": {
                 "/var/lib/nextcloud/server/3rdparty/sabre/dav": "${workspaceRoot}/dav",
                 "/var/lib/nextcloud/server/3rdparty/sabre/vobject": "${workspaceRoot}/vobject",
+                "/var/lib/nextcloud/server": "${workspaceRoot}/server",
+                "/var/lib/nextcloud/server/apps/dav": "${workspaceRoot}/server/apps/dav",
+
             },              
         }
     ]

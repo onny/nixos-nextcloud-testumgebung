@@ -1,6 +1,7 @@
 [submodule "calendar"]
 	path = calendar
 	url = https://github.com/nextcloud/calendar.git
+	branch = main
 [submodule "server"]
 	path = server
 	url = https://github.com/nextcloud/server.git

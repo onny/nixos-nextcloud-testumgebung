@@ -37,10 +37,15 @@
     enable = true;
     package = pkgs.nextcloud25;
     hostName = "localhost";
+    extraApps = with pkgs.nextcloud25Packages.apps; {
+      inherit calendar;
+    };
+    extraAppsEnable = true;
     config = {
       adminuser = "admin";
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
     };
+    caching.apcu = false;
     phpPackage = lib.mkForce (pkgs.php.buildEnv {
       extensions = ({ enabled, all }: enabled ++ (with all; [
         xdebug
@@ -60,6 +65,18 @@
       debug = true;
       logLevel = 0;
       trusted_domains = [ "10.100.100.1" ];
+      apps_paths = [
+        {
+          path = "/var/lib/nextcloud/nix-apps";
+          url = "/nix-apps";
+          writeable = false;
+        }
+        {
+          path = "/var/lib/nextcloud/server/apps";
+          url = "/apps";
+          writeable = false;
+        }
+      ];
     };
   };
   # Mount our local development repositories into the VM
@@ -68,10 +85,11 @@
       target = ./server;
       cache = "none";
     };
-    "/var/lib/nextcloud/store-apps/calendar" = {
-       target = ./calendar;
-       cache = "none";
-    };
+    # FIXME
+    #"/var/lib/nextcloud/server/apps/calendar" = {
+    #   target = ./calendar;
+    #   cache = "none";
+    #};
     "/var/lib/nextcloud/server/3rdparty/sabre/dav" = {
        target = ./dav;
        cache = "none";
