@@ -124,14 +124,31 @@
   };
 
   # Creating mail users and inboxes
+  # FIXME: Upstream
   systemd.services.maddy-accounts = {
     script = ''
-      ${pkgs.maddy}/bin/maddyctl creds create --password test123 user1@localhost
-      ${pkgs.maddy}/bin/maddyctl imap-acct create user1@localhost
-      ${pkgs.maddy}/bin/maddyctl creds create --password test123 user2@localhost
-      ${pkgs.maddy}/bin/maddyctl imap-acct create user2@localhost
-      ${pkgs.maddy}/bin/maddyctl creds create --password test123 admin@localhost
-      ${pkgs.maddy}/bin/maddyctl imap-acct create admin@localhost
+      #!${runtimeShell}
+
+      if not ${pkgs.maddy}/bin/maddyctl creds list | grep "user1@localhost"; then
+        ${pkgs.maddy}/bin/maddyctl creds create --password test123 user1@localhost
+      fi
+      if not ${pkgs.maddy}/bin/maddyctl imap-acct list | grep "user1@localhost"; then
+        ${pkgs.maddy}/bin/maddyctl imap-acct create user1@localhost
+      fi
+
+      if not ${pkgs.maddy}/bin/maddyctl creds list | grep "user2@localhost"; then
+        ${pkgs.maddy}/bin/maddyctl creds create --password test123 user2@localhost
+      fi
+      if not ${pkgs.maddy}/bin/maddyctl imap-acct list | grep "user2@localhost"; then
+        ${pkgs.maddy}/bin/maddyctl imap-acct create user2@localhost
+      fi
+
+      if not ${pkgs.maddy}/bin/maddyctl creds list | grep "admin@localhost"; then
+        ${pkgs.maddy}/bin/maddyctl creds create --password test123 admin@localhost
+      fi
+      if not ${pkgs.maddy}/bin/maddyctl imap-acct list | grep "admin@localhost"; then
+        ${pkgs.maddy}/bin/maddyctl imap-acct create admin@localhost
+      fi
     '';
     serviceConfig = {
       Type = "oneshot";
@@ -164,7 +181,16 @@
     wantedBy = [ "multi-user.target" ];
   };
 
-  system.stateVersion = "21.11";
+  # Required for php unit testing
+  environment.systemPackages = [ pkgs.php ];
+  # FIXME Package phpunit?
+  # Inside /var/lib/nextcloud/server run
+  # composer require phpunit/phpunit
+  environment.interactiveShellInit = ''
+    export PATH="$PATH:/var/lib/nextcloud/server/lib/composer/bin"
+  '';
+
+  system.stateVersion = "22.11";
 
   documentation.info.enable = false;
   documentation.man.enable = false;
