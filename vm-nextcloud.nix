@@ -4,12 +4,14 @@
 
 { pkgs, config, lib, options, ... }: {
 
+  # FIXME
   disabledModules = [
     "services/web-apps/nextcloud.nix"
+    "services/mail/maddy.nix"
   ];
-
   imports = [
     ./nextcloud.nix
+    "${fetchTarball "https://github.com/onny/nixpkgs/archive/maddy-acc.tar.gz"}/nixos/modules/services/mail/maddy.nix"
   ];
 
   nixpkgs = {
@@ -107,6 +109,11 @@
     config = lib.concatStrings (
       builtins.match "(.*)authorize_sender.*identity\n[ ]+\}(.*)" options.services.maddy.config.default
     );
+    ensureAccounts = [
+      "user1@localhost"
+      "user2@localhost"
+      "admin@localhost"
+    ];
   };
 
   # Configure local mail delivery
@@ -127,27 +134,16 @@
   # FIXME: Upstream
   systemd.services.maddy-accounts = {
     script = ''
-      #!${runtimeShell}
+      #!${pkgs.runtimeShell}
 
-      if not ${pkgs.maddy}/bin/maddyctl creds list | grep "user1@localhost"; then
+      if ! ${pkgs.maddy}/bin/maddyctl creds list | grep "user1@localhost"; then
         ${pkgs.maddy}/bin/maddyctl creds create --password test123 user1@localhost
       fi
-      if not ${pkgs.maddy}/bin/maddyctl imap-acct list | grep "user1@localhost"; then
-        ${pkgs.maddy}/bin/maddyctl imap-acct create user1@localhost
-      fi
-
-      if not ${pkgs.maddy}/bin/maddyctl creds list | grep "user2@localhost"; then
+      if ! ${pkgs.maddy}/bin/maddyctl creds list | grep "user2@localhost"; then
         ${pkgs.maddy}/bin/maddyctl creds create --password test123 user2@localhost
       fi
-      if not ${pkgs.maddy}/bin/maddyctl imap-acct list | grep "user2@localhost"; then
-        ${pkgs.maddy}/bin/maddyctl imap-acct create user2@localhost
-      fi
-
-      if not ${pkgs.maddy}/bin/maddyctl creds list | grep "admin@localhost"; then
+      if ! ${pkgs.maddy}/bin/maddyctl creds list | grep "admin@localhost"; then
         ${pkgs.maddy}/bin/maddyctl creds create --password test123 admin@localhost
-      fi
-      if not ${pkgs.maddy}/bin/maddyctl imap-acct list | grep "admin@localhost"; then
-        ${pkgs.maddy}/bin/maddyctl imap-acct create admin@localhost
       fi
     '';
     serviceConfig = {
