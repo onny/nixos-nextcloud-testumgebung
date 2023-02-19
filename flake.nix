@@ -1,5 +1,7 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+  # FIXME
+  inputs.nixpkgs.url = "github:onny/nixpkgs/phpunit";
+  #inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
 
   outputs = { self, nixpkgs }:
     let
@@ -8,10 +10,10 @@
     {
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs; [
-          php82Packages.composer
+          phpPackages.composer
+          phpPackages.phpunit
           nixos-shell
           nodejs
-          # phpunit
         ];
       };
     };

@@ -11,7 +11,7 @@
   ];
   imports = [
     ./nextcloud.nix
-    "${fetchTarball "https://github.com/onny/nixpkgs/archive/maddy-acc.tar.gz"}/nixos/modules/services/mail/maddy.nix"
+    "${fetchTarball "https://github.com/NixOS/nixpkgs/archive/master.tar.gz"}/nixos/modules/services/mail/maddy.nix"
   ];
 
   nixpkgs = {
