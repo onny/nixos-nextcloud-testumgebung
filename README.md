@@ -4,13 +4,13 @@ Build test environment
 git clone https://github.com/onny/nixos-nextcloud-testumgebung.git
 cd nixos-nextcloud-testumgebung
 nix develop
-make
+make build
 ```
 
 Run virtual machine
 
 ```
-make run
+nix run
 ```
 
 Requires NixOS :)
