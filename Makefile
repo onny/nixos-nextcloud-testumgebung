@@ -1,7 +1,6 @@
 build:
-	git submodule update --remote --init
+	git submodule update --remote --init --recursive
 	# Build server
-	cd server && git submodule update --init
 	cd server && make dev-setup
 	cd server && make build-js
 	cd server && npm run sass
