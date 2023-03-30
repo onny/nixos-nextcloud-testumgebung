@@ -4,6 +4,11 @@
 
 { pkgs, config, lib, options, ... }: {
 
+  virtualisation = {
+    memorySize = 8000;
+    cores = 4;
+  };
+
   # FIXME
   disabledModules = [
     "services/web-apps/nextcloud.nix"
@@ -19,7 +24,7 @@
       (self: super: {
         # Remove first run wizard and password policy check from Nextcloud
         # package
-        nextcloud25 = super.nextcloud25.overrideAttrs (oldAttrs: rec {
+        nextcloud26 = super.nextcloud26.overrideAttrs (oldAttrs: rec {
           patches = [];
           src = ./server;
           installPhase = oldAttrs.installPhase + ''
@@ -37,17 +42,16 @@
   # Setup Nextcloud including apps
   services.nextcloud = {
     enable = true;
-    package = pkgs.nextcloud25;
+    package = pkgs.nextcloud26;
     hostName = "localhost";
-    extraApps = with pkgs.nextcloud25Packages.apps; {
-      inherit calendar;
-    };
+    #extraApps = with pkgs.nextcloud26Packages.apps; {
+    #  inherit calendar;
+    #};
     extraAppsEnable = true;
     config = {
       adminuser = "admin";
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
     };
-    caching.apcu = false;
     phpPackage = lib.mkForce (pkgs.php.buildEnv {
       extensions = ({ enabled, all }: enabled ++ (with all; [
         xdebug
@@ -61,12 +65,41 @@
       "xdebug.idekey" = "ECLIPSE";
     };
     appstoreEnable = false;
+    caching = {
+      redis = true;
+      apcu = false;
+    };
     extraOptions = {
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
       debug = true;
       logLevel = 0;
       trusted_domains = [ "10.100.100.1" ];
+      redis = {
+        host = "/run/redis-nextcloud/redis.sock";
+        port = 0;
+      };
+      memcache = {
+        local = "\\OC\\Memcache\\Redis";
+        distributed = "\\OC\\Memcache\\Redis";
+        locking = "\\OC\\Memcache\\Redis";
+      };
+      phpOptions = {
+        short_open_tag = "Off";
+        expose_php = "Off";
+        error_reporting = "E_ALL & ~E_DEPRECATED & ~E_STRICT";
+        display_errors = "stderr";
+        "opcache.enable_cli" = "1";
+        "opcache.enable" = "1";
+        "opcache.interned_strings_buffer" = "12";
+        "opcache.max_accelerated_files" = "10000";
+        "opcache.memory_consumption" = "128";
+        "opcache.save_comments" = "1";
+        "opcache.revalidate_freq" = "1";
+        "opcache.fast_shutdown" = "1";
+        "openssl.cafile" = "/etc/ssl/certs/ca-certificates.crt";
+        catch_workers_output = "yes";
+      };
       apps_paths = [
         {
           path = "/var/lib/nextcloud/nix-apps";
@@ -87,24 +120,28 @@
       target = ./server;
       cache = "none";
     };
-    # FIXME
-    #"/var/lib/nextcloud/server/apps/calendar" = {
-    #   target = ./calendar;
-    #   cache = "none";
-    #};
+    "/var/lib/nextcloud/server/apps/calendar" = {
+       target = ./calendar;
+       cache = "none";
+    };
     "/var/lib/nextcloud/server/3rdparty/sabre/dav" = {
        target = ./dav;
        cache = "none";
     };
   };
   services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";
+  services.redis.servers.nextcloud = {
+    enable = true;
+    user = "nextcloud";
+    port = 0;
+  };
 
   # Setup mail server
   services.maddy = {
     enable = true;
     hostname = "localhost";
     primaryDomain = "localhost";
-    localDomains = [ "$(primary_domain)" "10.100.100.1" ];
+    localDomains = [ "$(primary_domain)" "10.0.2.0/24" "127.0.0.1" ];
     # Disable any sender validation checks
     config = lib.concatStrings (
       builtins.match "(.*)authorize_sender.*identity\n[ ]+\}(.*)" options.services.maddy.config.default
@@ -178,7 +215,7 @@
   };
 
   # Required for php unit testing
-  environment.systemPackages = [ pkgs.php ];
+  environment.systemPackages = with pkgs; [ php sqlite htop ];
   # FIXME Package phpunit?
   # Inside /var/lib/nextcloud/server run
   # composer require phpunit/phpunit

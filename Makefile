@@ -7,6 +7,7 @@ build:
 	# config ⇒ /var/lib/nextcloud/config # FIXME
 	cd calendar && make dev-setup
 	cd calendar && make build-js
+	cd calendar && make composer-init
 
 clean:
 	rm nixos.qcow2
