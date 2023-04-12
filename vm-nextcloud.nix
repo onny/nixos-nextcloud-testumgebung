@@ -16,7 +16,7 @@
   ];
   imports = [
     ./nextcloud.nix
-    "${fetchTarball "https://github.com/NixOS/nixpkgs/archive/master.tar.gz"}/nixos/modules/services/mail/maddy.nix"
+    "${fetchTarball "https://github.com/onny/nixpkgs/archive/maddy-creds.tar.gz"}/nixos/modules/services/mail/maddy.nix"
   ];
 
   nixpkgs = {
@@ -141,7 +141,12 @@
     enable = true;
     hostname = "localhost";
     primaryDomain = "localhost";
-    localDomains = [ "$(primary_domain)" "10.0.2.0/24" "127.0.0.1" ];
+    localDomains = [
+      "$(primary_domain)"
+      "10.0.2.0/24"
+      "10.100.100.1"
+      "127.0.0.1"
+    ];
     # Disable any sender validation checks
     config = lib.concatStrings (
       builtins.match "(.*)authorize_sender.*identity\n[ ]+\}(.*)" options.services.maddy.config.default
@@ -151,6 +156,10 @@
       "user2@localhost"
       "admin@localhost"
     ];
+    ensureCredentials = [
+      "user1@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
+      "user2@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
+      "admin@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
   };
 
   # Configure local mail delivery
@@ -165,30 +174,6 @@
       user = "admin@localhost";
       password = "test123";
     };
-  };
-
-  # Creating mail users and inboxes
-  # FIXME: Upstream
-  systemd.services.maddy-accounts = {
-    script = ''
-      #!${pkgs.runtimeShell}
-
-      if ! ${pkgs.maddy}/bin/maddyctl creds list | grep "user1@localhost"; then
-        ${pkgs.maddy}/bin/maddyctl creds create --password test123 user1@localhost
-      fi
-      if ! ${pkgs.maddy}/bin/maddyctl creds list | grep "user2@localhost"; then
-        ${pkgs.maddy}/bin/maddyctl creds create --password test123 user2@localhost
-      fi
-      if ! ${pkgs.maddy}/bin/maddyctl creds list | grep "admin@localhost"; then
-        ${pkgs.maddy}/bin/maddyctl creds create --password test123 admin@localhost
-      fi
-    '';
-    serviceConfig = {
-      Type = "oneshot";
-      User= "maddy";
-    };
-    after = [ "maddy.service" ];
-    wantedBy = [ "multi-user.target" ];
   };
 
   # Creating Nextcloud users and configure mail adresses
