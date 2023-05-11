@@ -1,7 +1,7 @@
 {
   inputs = {
-    # FIXME: Switch to 23.05 when released
-    inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # FIXME: Switch to 23.05 when phpunit released
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # Required for multi platform support
     flake-utils.url = "github:numtide/flake-utils";
   };
