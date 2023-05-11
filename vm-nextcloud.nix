@@ -16,7 +16,7 @@
   ];
   imports = [
     ./nextcloud.nix
-    "${fetchTarball "https://github.com/onny/nixpkgs/archive/maddy-creds.tar.gz"}/nixos/modules/services/mail/maddy.nix"
+    "${fetchTarball "https://github.com/NixOS/nixpkgs/archive/master.tar.gz"}/nixos/modules/services/mail/maddy.nix"
   ];
 
   nixpkgs = {
@@ -160,6 +160,7 @@
       "user1@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
       "user2@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
       "admin@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
+    ];
   };
 
   # Configure local mail delivery
