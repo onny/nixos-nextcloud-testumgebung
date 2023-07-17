@@ -12,26 +12,24 @@
   # FIXME
   disabledModules = [
     "services/web-apps/nextcloud.nix"
-    "services/mail/maddy.nix"
   ];
   imports = [
-    ./nextcloud.nix
-    "${fetchTarball "https://github.com/NixOS/nixpkgs/archive/master.tar.gz"}/nixos/modules/services/mail/maddy.nix"
-  ];
+    ./nextcloud.nix  ];
 
   nixpkgs = {
     overlays = [
       (self: super: {
         # Remove first run wizard and password policy check from Nextcloud
         # package
-        nextcloud26 = super.nextcloud26.overrideAttrs (oldAttrs: rec {
-          patches = [];
-          src = ./server;
+        nextcloud27 = super.nextcloud27.overrideAttrs (oldAttrs: rec {
+          #patches = [];
+          #src = ./server;
           installPhase = oldAttrs.installPhase + ''
             mkdir -p $out/
             cp -R . $out/
             #rm -r $out/apps/firstrunwizard
             #rm -r $out/apps/password_policy
+            rm -r $out/apps/circles
           '';
           dontBuild = true;
         });
@@ -42,12 +40,12 @@
   # Setup Nextcloud including apps
   services.nextcloud = {
     enable = true;
-    package = pkgs.nextcloud26;
+    package = pkgs.nextcloud27;
     hostName = "localhost";
-    #extraApps = with pkgs.nextcloud26Packages.apps; {
-    #  inherit calendar;
+    #extraApps = with pkgs.nextcloud27Packages.apps; {
+    #  inherit activity;
     #};
-    extraAppsEnable = true;
+    #extraAppsEnable = true;
     config = {
       adminuser = "admin";
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
@@ -64,26 +62,16 @@
       "xdebug.start_with_request" = "yes";
       "xdebug.idekey" = "ECLIPSE";
     };
-    appstoreEnable = false;
-    caching = {
-      redis = true;
-      apcu = false;
-    };
+    appstoreEnable = true;
+    configureRedis = true;
+    caching.apcu = false;
     extraOptions = {
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
-      debug = true;
-      logLevel = 0;
+      log_type = "syslog";
+      syslog_tag = "Nextcloud";
+      loglevel = 0;
       trusted_domains = [ "10.100.100.1" ];
-      redis = {
-        host = "/run/redis-nextcloud/redis.sock";
-        port = 0;
-      };
-      memcache = {
-        local = "\\OC\\Memcache\\Redis";
-        distributed = "\\OC\\Memcache\\Redis";
-        locking = "\\OC\\Memcache\\Redis";
-      };
       phpOptions = {
         short_open_tag = "Off";
         expose_php = "Off";
@@ -100,41 +88,44 @@
         "openssl.cafile" = "/etc/ssl/certs/ca-certificates.crt";
         catch_workers_output = "yes";
       };
-      apps_paths = [
-        {
-          path = "/var/lib/nextcloud/nix-apps";
-          url = "/nix-apps";
-          writeable = false;
-        }
-        {
-          path = "/var/lib/nextcloud/server/apps";
-          url = "/apps";
-          writeable = false;
-        }
-      ];
+      # apps_paths = [
+      #   {
+      #     path = "/var/lib/nextcloud/nix-apps";
+      #     url = "/nix-apps";
+      #     writeable = false;
+      #   }
+      #   {
+      #     path = "/var/lib/nextcloud/server/apps";
+      #     url = "/apps";
+      #     writeable = false;
+      #   }
+      # ];
     };
   };
   # Mount our local development repositories into the VM
   nixos-shell.mounts.extraMounts = {
-    "/var/lib/nextcloud/server" = {
-      target = ./server;
-      cache = "none";
-    };
-    "/var/lib/nextcloud/server/apps/calendar" = {
-       target = ./calendar;
-       cache = "none";
-    };
-    "/var/lib/nextcloud/server/3rdparty/sabre/dav" = {
-       target = ./dav;
+    "/var/lib/nextcloud/store-apps/circles" = {
+       target = ./circles;
        cache = "none";
     };
   };
-  services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";
-  services.redis.servers.nextcloud = {
-    enable = true;
-    user = "nextcloud";
-    port = 0;
-  };
+  #   "/var/lib/nextcloud/server" = {
+  #     target = ./server;
+  #     cache = "none";
+  #   };
+  #   "/var/lib/nextcloud/server/apps/calendar" = {
+  #      target = ./calendar;
+  #      cache = "none";
+  #   };
+  #   "/var/lib/nextcloud/server/apps/activity" = {
+  #      target = ./activity;
+  #      cache = "none";
+  #   };
+  #   "/var/lib/nextcloud/server/3rdparty/sabre/dav" = {
+  #      target = ./dav;
+  #      cache = "none";
+  #   };
+  #services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";
 
   # Setup mail server
   services.maddy = {
@@ -156,11 +147,11 @@
       "user2@localhost"
       "admin@localhost"
     ];
-    ensureCredentials = [
+    ensureCredentials = {
       "user1@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
       "user2@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
       "admin@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
-    ];
+    };
   };
 
   # Configure local mail delivery
@@ -200,16 +191,7 @@
     wantedBy = [ "multi-user.target" ];
   };
 
-  # Required for php unit testing
-  environment.systemPackages = with pkgs; [ php sqlite htop ];
-  # FIXME Package phpunit?
-  # Inside /var/lib/nextcloud/server run
-  # composer require phpunit/phpunit
-  environment.interactiveShellInit = ''
-    export PATH="$PATH:/var/lib/nextcloud/server/lib/composer/bin"
-  '';
-
-  system.stateVersion = "22.11";
+  system.stateVersion = "23.05";
 
   documentation.info.enable = false;
   documentation.man.enable = false;

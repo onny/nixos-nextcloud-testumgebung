@@ -11,3 +11,6 @@
 [submodule "vobject"]
 	path = vobject
 	url = git@github.com:sabre-io/vobject.git
+[submodule "circles"]
+	path = circles
+	url = https://github.com/nextcloud/circles.git
