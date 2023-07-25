@@ -14,7 +14,7 @@
                 "/var/lib/nextcloud/server/3rdparty/sabre/vobject": "${workspaceRoot}/vobject",
                 "/var/lib/nextcloud/server": "${workspaceRoot}/server",
                 "/var/lib/nextcloud/server/apps/dav": "${workspaceRoot}/server/apps/dav",
-
+                "/var/lib/nextcloud/dev-apps/circles": "${workspaceRoot}/circles",
             },              
         }
     ]

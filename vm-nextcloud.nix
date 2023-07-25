@@ -27,8 +27,8 @@
           installPhase = oldAttrs.installPhase + ''
             mkdir -p $out/
             cp -R . $out/
-            #rm -r $out/apps/firstrunwizard
-            #rm -r $out/apps/password_policy
+            rm -r $out/apps/firstrunwizard
+            rm -r $out/apps/password_policy
             rm -r $out/apps/circles
           '';
           dontBuild = true;
@@ -42,10 +42,10 @@
     enable = true;
     package = pkgs.nextcloud27;
     hostName = "localhost";
-    #extraApps = with pkgs.nextcloud27Packages.apps; {
-    #  inherit activity;
-    #};
-    #extraAppsEnable = true;
+    extraApps = with config.services.nextcloud.package.packages.apps; {
+      inherit calendar contacts;
+    };
+    extraAppsEnable = true;
     config = {
       adminuser = "admin";
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
@@ -62,7 +62,7 @@
       "xdebug.start_with_request" = "yes";
       "xdebug.idekey" = "ECLIPSE";
     };
-    appstoreEnable = true;
+    appstoreEnable = false;
     configureRedis = true;
     caching.apcu = false;
     extraOptions = {
@@ -88,31 +88,38 @@
         "openssl.cafile" = "/etc/ssl/certs/ca-certificates.crt";
         catch_workers_output = "yes";
       };
-      # apps_paths = [
-      #   {
-      #     path = "/var/lib/nextcloud/nix-apps";
-      #     url = "/nix-apps";
-      #     writeable = false;
-      #   }
-      #   {
-      #     path = "/var/lib/nextcloud/server/apps";
-      #     url = "/apps";
-      #     writeable = false;
-      #   }
-      # ];
+      apps_paths = [
+        {
+          path = "/var/lib/nextcloud/nix-apps";
+          url = "/nix-apps";
+          writable = false;
+        }
+        {
+          path = "/var/lib/nextcloud/apps";
+          url = "/apps";
+          writable = false;
+        }
+        {
+          path = "/var/lib/nextcloud/dev-apps";
+          url = "/dev-apps";
+          writable = false;
+        }
+      ];
     };
   };
   # Mount our local development repositories into the VM
   nixos-shell.mounts.extraMounts = {
-    "/var/lib/nextcloud/store-apps/circles" = {
+    "/var/lib/nextcloud/dev-apps/circles" = {
        target = ./circles;
        cache = "none";
     };
   };
-  #   "/var/lib/nextcloud/server" = {
-  #     target = ./server;
-  #     cache = "none";
-  #   };
+  #  #"/var/lib/nextcloud/server" = {
+  #  #  target = ./server;
+  #  #  cache = "none";
+  #  #};
+  #};
+  #};
   #   "/var/lib/nextcloud/server/apps/calendar" = {
   #      target = ./calendar;
   #      cache = "none";
@@ -138,7 +145,7 @@
       "10.100.100.1"
       "127.0.0.1"
     ];
-    # Disable any sender validation checks
+    # Disable any sender vhttps://github.com/obsidiansystems/ipfs-nix-guide/alidation checks
     config = lib.concatStrings (
       builtins.match "(.*)authorize_sender.*identity\n[ ]+\}(.*)" options.services.maddy.config.default
     );
@@ -177,11 +184,6 @@
       ${config.services.nextcloud.occ}/bin/nextcloud-occ user:add --password-from-env user2
       ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting user2 settings email "user2@localhost"
       ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting admin settings email "admin@localhost"
-
-      ${config.services.nextcloud.occ}/bin/nextcloud-occ app:enable calendar
-
-      rm /var/lib/nextcloud/apps
-      ln -s /var/lib/nextcloud/server/apps /var/lib/nextcloud/apps
     '';
     serviceConfig = {
       Type = "oneshot";
