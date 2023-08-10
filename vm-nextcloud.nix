@@ -29,7 +29,6 @@
             cp -R . $out/
             rm -r $out/apps/firstrunwizard
             rm -r $out/apps/password_policy
-            rm -r $out/apps/circles
           '';
           dontBuild = true;
         });
@@ -43,12 +42,23 @@
     package = pkgs.nextcloud27;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
-      inherit calendar contacts;
+      inherit contacts;
+      #inherit calendarM
     };
     extraAppsEnable = true;
     config = {
       adminuser = "admin";
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
+    };
+    ensureUsers = {
+      user1 = {
+        email = "user1@localhost";
+        passwordFile = "${pkgs.writeText "password" "test123"}";
+      };
+      user2 = {
+        email = "user2@localhost";
+        passwordFile = "${pkgs.writeText "password" "test123"}";
+      };
     };
     phpPackage = lib.mkForce (pkgs.php.buildEnv {
       extensions = ({ enabled, all }: enabled ++ (with all; [
@@ -62,32 +72,12 @@
       "xdebug.start_with_request" = "yes";
       "xdebug.idekey" = "ECLIPSE";
     };
-    appstoreEnable = false;
+    appstoreEnable = true;
     configureRedis = true;
-    caching.apcu = false;
     extraOptions = {
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
-      log_type = "syslog";
-      syslog_tag = "Nextcloud";
-      loglevel = 0;
       trusted_domains = [ "10.100.100.1" ];
-      phpOptions = {
-        short_open_tag = "Off";
-        expose_php = "Off";
-        error_reporting = "E_ALL & ~E_DEPRECATED & ~E_STRICT";
-        display_errors = "stderr";
-        "opcache.enable_cli" = "1";
-        "opcache.enable" = "1";
-        "opcache.interned_strings_buffer" = "12";
-        "opcache.max_accelerated_files" = "10000";
-        "opcache.memory_consumption" = "128";
-        "opcache.save_comments" = "1";
-        "opcache.revalidate_freq" = "1";
-        "opcache.fast_shutdown" = "1";
-        "openssl.cafile" = "/etc/ssl/certs/ca-certificates.crt";
-        catch_workers_output = "yes";
-      };
       apps_paths = [
         {
           path = "/var/lib/nextcloud/nix-apps";
@@ -99,39 +89,29 @@
           url = "/apps";
           writable = false;
         }
-        {
-          path = "/var/lib/nextcloud/dev-apps";
-          url = "/dev-apps";
-          writable = false;
-        }
+        #{
+        #  path = "/var/lib/nextcloud/dev-apps";
+        #  url = "/dev-apps";
+        #  writable = false;
+        #}
       ];
     };
   };
   # Mount our local development repositories into the VM
   nixos-shell.mounts.extraMounts = {
-    "/var/lib/nextcloud/dev-apps/circles" = {
-       target = ./circles;
+    "/var/lib/nextcloud/store-apps/calendar" = {
+       target = ./calendar;
        cache = "none";
     };
+   #"/var/lib/nextcloud/server" = {
+   #  target = ./server;
+   #  cache = "none";
+   #};
   };
-  #  #"/var/lib/nextcloud/server" = {
-  #  #  target = ./server;
-  #  #  cache = "none";
-  #  #};
-  #};
-  #};
-  #   "/var/lib/nextcloud/server/apps/calendar" = {
-  #      target = ./calendar;
-  #      cache = "none";
-  #   };
-  #   "/var/lib/nextcloud/server/apps/activity" = {
-  #      target = ./activity;
-  #      cache = "none";
-  #   };
-  #   "/var/lib/nextcloud/server/3rdparty/sabre/dav" = {
-  #      target = ./dav;
-  #      cache = "none";
-  #   };
+  #  "/var/lib/nextcloud/server/3rdparty/sabre/dav" = {
+  #     target = ./dav;
+  #     cache = "none";
+  #  };
   #services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";
 
   # Setup mail server
@@ -175,28 +155,12 @@
     };
   };
 
-  # Creating Nextcloud users and configure mail adresses
-  systemd.services.nextcloud-add-user = {
-    script = ''
-      export OC_PASS="test123"
-      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:add --password-from-env user1
-      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting user1 settings email "user1@localhost"
-      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:add --password-from-env user2
-      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting user2 settings email "user2@localhost"
-      ${config.services.nextcloud.occ}/bin/nextcloud-occ user:setting admin settings email "admin@localhost"
-    '';
-    serviceConfig = {
-      Type = "oneshot";
-      User= "nextcloud";
-    };
-    after = [ "nextcloud-setup.service" ];
-    wantedBy = [ "multi-user.target" ];
-  };
-
   system.stateVersion = "23.05";
 
-  documentation.info.enable = false;
-  documentation.man.enable = false;
-  documentation.nixos.enable = false;
+  documentation = {
+    info.enable = false;
+    man.enable = false;
+    nixos.enable = false;
+  };
 
 }
