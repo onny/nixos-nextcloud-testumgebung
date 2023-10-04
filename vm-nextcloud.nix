@@ -14,7 +14,8 @@
     "services/web-apps/nextcloud.nix"
   ];
   imports = [
-    ./nextcloud.nix  ];
+    "${fetchTarball "https://github.com/onny/nixpkgs/archive/nextcloud-ensureusers.tar.gz"}/nixos/modules/services/web-apps/nextcloud.nix"
+  ];
 
   nixpkgs = {
     overlays = [
@@ -78,6 +79,7 @@
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
       trusted_domains = [ "10.100.100.1" ];
+      integrity.check.disabled = true;
       apps_paths = [
         {
           path = "/var/lib/nextcloud/nix-apps";
@@ -89,25 +91,26 @@
           url = "/apps";
           writable = false;
         }
-        #{
-        #  path = "/var/lib/nextcloud/dev-apps";
-        #  url = "/dev-apps";
-        #  writable = false;
-        #}
+        {
+          path = "/var/lib/nextcloud/store-apps";
+          url = "/store-apps";
+          writable = true;
+        }
       ];
     };
   };
   # Mount our local development repositories into the VM
   nixos-shell.mounts.extraMounts = {
-    "/var/lib/nextcloud/store-apps/calendar" = {
+    "/var/lib/nextcloud/calendar" = {
        target = ./calendar;
        cache = "none";
     };
+  };
    #"/var/lib/nextcloud/server" = {
    #  target = ./server;
    #  cache = "none";
    #};
-  };
+  #};
   #  "/var/lib/nextcloud/server/3rdparty/sabre/dav" = {
   #     target = ./dav;
   #     cache = "none";
@@ -154,6 +157,21 @@
       password = "test123";
     };
   };
+
+  # FIXME: need to create /var/lib/nextcloud/store-apps before
+  # with correct permissions
+  systemd.mounts = [
+    {
+      what = "/var/lib/nextcloud/calendar";
+      where = "/var/lib/nextcloud/store-apps/calendar";
+      type = "fuse.bindfs";
+      options = "uid=997,gid=997";
+      wantedBy = [ "multi-user.target" ];
+      enable = true;
+    }
+  ];
+
+  system.fsPackages = [ pkgs.bindfs ];
 
   system.stateVersion = "23.05";
 

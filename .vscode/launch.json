@@ -15,6 +15,7 @@
                 "/var/lib/nextcloud/server": "${workspaceRoot}/server",
                 "/var/lib/nextcloud/server/apps/dav": "${workspaceRoot}/server/apps/dav",
                 "/var/lib/nextcloud/dev-apps/circles": "${workspaceRoot}/circles",
+                "/var/lib/nextcloud/store-apps/calendar": "${workspaceRoot}/calendar",
             },              
         }
     ]
