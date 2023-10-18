@@ -14,3 +14,6 @@
 [submodule "circles"]
 	path = circles
 	url = https://github.com/nextcloud/circles.git
+[submodule "files_fulltextsearch"]
+	path = files_fulltextsearch
+	url = https://github.com/nextcloud/files_fulltextsearch.git

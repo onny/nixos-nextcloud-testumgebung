@@ -43,8 +43,12 @@
     package = pkgs.nextcloud27;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
-      inherit contacts;
-      #inherit calendarM
+      inherit contacts polls;
+      # hmr_enable = pkgs.fetchNextcloudApp rec {
+      #   url = "https://github.com/nextcloud/hmr_enabler/archive/852acc47c64db1be85051197bf7939298059fe09.zip";
+      #   sha256 = "sha256-eTc51pkg3OdHJB7X4/hD39Ce+9vKzw1nlJ7BhPOzlll=";
+
+      # };
     };
     extraAppsEnable = true;
     config = {
@@ -79,7 +83,8 @@
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
       trusted_domains = [ "10.100.100.1" ];
-      integrity.check.disabled = true;
+      "integrity.check.disabled" = true;
+      debug = true;
       apps_paths = [
         {
           path = "/var/lib/nextcloud/nix-apps";
