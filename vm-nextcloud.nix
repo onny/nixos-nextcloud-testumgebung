@@ -104,23 +104,41 @@
       ];
     };
   };
-  # Mount our local development repositories into the VM
+
   nixos-shell.mounts.extraMounts = {
     "/var/lib/nextcloud/calendar" = {
        target = ./calendar;
        cache = "none";
     };
   };
-   #"/var/lib/nextcloud/server" = {
-   #  target = ./server;
-   #  cache = "none";
-   #};
-  #};
-  #  "/var/lib/nextcloud/server/3rdparty/sabre/dav" = {
-  #     target = ./dav;
-  #     cache = "none";
-  #  };
-  #services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";
+
+  systemd.mounts = [
+    {
+      what = "/var/lib/nextcloud/calendar";
+      where = "/var/lib/nextcloud/store-apps/calendar";
+      type = "fuse.bindfs";
+      options = "uid=997,gid=997";
+      wantedBy = [ "multi-user.target" ];
+      enable = true;
+    }
+  ];
+
+  systemd.services."prepare-bindfs-mount" = {
+    script = ''
+      set -eu
+      ${pkgs.coreutils}/bin/mkdir -p /var/lib/nextcloud/store-apps
+      ${pkgs.coreutils}/bin/chown nextcloud:nextcloud /var/lib/nextcloud/store-apps
+    '';
+    before = [
+      "nextcloud-setup.service"
+      "var-lib-nextcloud-store\\x2dapps-calendar.mount"
+    ];
+    wantedBy = ["multi-user.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+    };
+  };
 
   # Setup mail server
   services.maddy = {
@@ -162,19 +180,6 @@
       password = "test123";
     };
   };
-
-  # FIXME: need to create /var/lib/nextcloud/store-apps before
-  # with correct permissions
-  systemd.mounts = [
-    {
-      what = "/var/lib/nextcloud/calendar";
-      where = "/var/lib/nextcloud/store-apps/calendar";
-      type = "fuse.bindfs";
-      options = "uid=997,gid=997";
-      wantedBy = [ "multi-user.target" ];
-      enable = true;
-    }
-  ];
 
   system.fsPackages = [ pkgs.bindfs ];
 
