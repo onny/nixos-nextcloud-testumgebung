@@ -43,12 +43,23 @@
     package = pkgs.nextcloud27;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
-      inherit contacts polls;
-      # hmr_enable = pkgs.fetchNextcloudApp rec {
-      #   url = "https://github.com/nextcloud/hmr_enabler/archive/852acc47c64db1be85051197bf7939298059fe09.zip";
-      #   sha256 = "sha256-eTc51pkg3OdHJB7X4/hD39Ce+9vKzw1nlJ7BhPOzlll=";
-
-      # };
+      inherit contacts;
+      hmr_enabler = pkgs.php.buildComposerProject (finalAttrs: {
+        pname = "hmr_enabler";
+        version = "1.0.0";
+        src = pkgs.fetchFromGitHub {
+          owner = "onny";
+          repo = "hmr_enabler";
+          rev = "85404e232344c856133e0b14e3ea30bbb8118034";
+          hash = "sha256-mxUTWQozqcnTnlHrUtfUcsAX+X/N0fcLiUec4cGjGdg=";
+        };
+        composerNoDev = false;
+        vendorHash = "sha256-ENfs9gsXtrWP7u8+LKDMQ+hhiP3UKtn6t5lPl6wKOdQ=";
+        postInstall = ''
+          cp -r $out/share/php/hmr_enabler/* $out/
+          rm -r $out/share
+        '';
+      });
     };
     extraAppsEnable = true;
     config = {

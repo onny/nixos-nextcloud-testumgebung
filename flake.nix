@@ -21,6 +21,7 @@
             phpPackages.composer
             phpunit
             nodejs
+	    nodePackages.rollup
           ];
         };
         packages = { inherit start; };

@@ -17,3 +17,9 @@
 [submodule "files_fulltextsearch"]
 	path = files_fulltextsearch
 	url = https://github.com/nextcloud/files_fulltextsearch.git
+[submodule "ical.js"]
+	path = ical.js
+	url = https://github.com/kewisch/ical.js.git
+[submodule "calendar-js"]
+	path = calendar-js
+	url = https://github.com/nextcloud/calendar-js.git
