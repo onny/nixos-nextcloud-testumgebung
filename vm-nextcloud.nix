@@ -1,7 +1,3 @@
-# Todo
-# - Creating symlink to config dir
-# - Patch chgrp in Nextcloud module
-
 { pkgs, config, lib, options, ... }: {
 
   virtualisation = {
@@ -10,6 +6,7 @@
   };
 
   # FIXME
+  # is it possible to extend existing module with additional options using flake?
   disabledModules = [
     "services/web-apps/nextcloud.nix"
   ];
@@ -44,17 +41,19 @@
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
       inherit contacts;
+      # FIXME
+      # enable hmr when debug flag is enabled
       hmr_enabler = pkgs.php.buildComposerProject (finalAttrs: {
         pname = "hmr_enabler";
         version = "1.0.0";
         src = pkgs.fetchFromGitHub {
-          owner = "onny";
+          owner = "nextcloud";
           repo = "hmr_enabler";
-          rev = "85404e232344c856133e0b14e3ea30bbb8118034";
-          hash = "sha256-mxUTWQozqcnTnlHrUtfUcsAX+X/N0fcLiUec4cGjGdg=";
+          rev = "b8d3ad290bfa6fe407280587181a5167d71a2617";
+          hash = "sha256-yXFby5zlDiPdrw6HchmBoUdu9Zjfgp/bSu0G/isRpKg=";
         };
         composerNoDev = false;
-        vendorHash = "sha256-ENfs9gsXtrWP7u8+LKDMQ+hhiP3UKtn6t5lPl6wKOdQ=";
+        vendorHash = "sha256-PCWWu/SqTUGnZXUnXyL8c72p8L14ZUqIxoa5i49XPH4=";
         postInstall = ''
           cp -r $out/share/php/hmr_enabler/* $out/
           rm -r $out/share
@@ -117,16 +116,16 @@
   };
 
   nixos-shell.mounts.extraMounts = {
-    "/var/lib/nextcloud/calendar" = {
-       target = ./calendar;
+    "/var/lib/nextcloud/cleanup" = {
+       target = ./cleanup;
        cache = "none";
     };
   };
 
   systemd.mounts = [
     {
-      what = "/var/lib/nextcloud/calendar";
-      where = "/var/lib/nextcloud/store-apps/calendar";
+      what = "/var/lib/nextcloud/cleanup";
+      where = "/var/lib/nextcloud/store-apps/cleanup";
       type = "fuse.bindfs";
       options = "uid=997,gid=997";
       wantedBy = [ "multi-user.target" ];
@@ -194,7 +193,7 @@
 
   system.fsPackages = [ pkgs.bindfs ];
 
-  system.stateVersion = "23.05";
+  system.stateVersion = "23.11";
 
   documentation = {
     info.enable = false;

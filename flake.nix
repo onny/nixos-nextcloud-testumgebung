@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "nixpkgs/23.11";
     # Required for multi platform support
     flake-utils.url = "github:numtide/flake-utils";
   };
@@ -14,14 +14,21 @@
             export QEMU_NET_OPTS="hostfwd=tcp::8080-:80,hostfwd=tcp::1433-:143,hostfwd=tcp::5877-:587"
             ${pkgs.nixos-shell}/bin/nixos-shell vm-nextcloud.nix
           '';
+        phpunit = pkgs.phpunit.overrideAttrs (oldAttrs: rec {
+          version = "9.6.13";
+          src = pkgs.fetchurl {
+            url = "https://phar.phpunit.de/phpunit-${version}.phar";
+            hash = "sha256-1nxGBJCGBPQMyA91xbVd8baFoGoeqBkf7feFMcxdAeU=";
+          };
+        });
       in
       {
         devShell = pkgs.mkShell {
           packages = with pkgs; [
-            phpPackages.composer
+            php82Packages.composer
             phpunit
             nodejs
-	    nodePackages.rollup
+            nodePackages.rollup
           ];
         };
         packages = { inherit start; };
