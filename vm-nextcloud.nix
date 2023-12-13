@@ -19,7 +19,7 @@
       (self: super: {
         # Remove first run wizard and password policy check from Nextcloud
         # package
-        nextcloud27 = super.nextcloud27.overrideAttrs (oldAttrs: rec {
+        nextcloud28 = super.nextcloud28.overrideAttrs (oldAttrs: rec {
           #patches = [];
           #src = ./server;
           installPhase = oldAttrs.installPhase + ''
@@ -37,10 +37,10 @@
   # Setup Nextcloud including apps
   services.nextcloud = {
     enable = true;
-    package = pkgs.nextcloud27;
+    package = pkgs.nextcloud28;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
-      inherit contacts;
+      inherit contacts calendar;
       # FIXME
       # enable hmr when debug flag is enabled
       hmr_enabler = pkgs.php.buildComposerProject (finalAttrs: {

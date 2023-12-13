@@ -1,6 +1,8 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/23.11";
+    # FIXME
+    #nixpkgs.url = "nixpkgs/23.11";
+    nixpkgs.url = "github:onny/nixpkgs/nextcloud-update2";
     # Required for multi platform support
     flake-utils.url = "github:numtide/flake-utils";
   };
@@ -14,13 +16,6 @@
             export QEMU_NET_OPTS="hostfwd=tcp::8080-:80,hostfwd=tcp::1433-:143,hostfwd=tcp::5877-:587"
             ${pkgs.nixos-shell}/bin/nixos-shell vm-nextcloud.nix
           '';
-        phpunit = pkgs.phpunit.overrideAttrs (oldAttrs: rec {
-          version = "9.6.13";
-          src = pkgs.fetchurl {
-            url = "https://phar.phpunit.de/phpunit-${version}.phar";
-            hash = "sha256-1nxGBJCGBPQMyA91xbVd8baFoGoeqBkf7feFMcxdAeU=";
-          };
-        });
       in
       {
         devShell = pkgs.mkShell {
