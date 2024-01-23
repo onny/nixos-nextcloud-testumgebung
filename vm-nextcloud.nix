@@ -95,58 +95,13 @@
       trusted_domains = [ "10.100.100.1" ];
       "integrity.check.disabled" = true;
       debug = true;
-      apps_paths = [
-        {
-          path = "/var/lib/nextcloud/nix-apps";
-          url = "/nix-apps";
-          writable = false;
-        }
-        {
-          path = "/var/lib/nextcloud/apps";
-          url = "/apps";
-          writable = false;
-        }
-        {
-          path = "/var/lib/nextcloud/store-apps";
-          url = "/store-apps";
-          writable = true;
-        }
-      ];
     };
   };
 
   nixos-shell.mounts.extraMounts = {
-    "/var/lib/nextcloud/cleanup" = {
-       target = ./cleanup;
+    "/var/lib/nextcloud/store-apps/cleanup" = {
+       target = /home/onny/projects/nixos-nextcloud-testumgebung/cleanup;
        cache = "none";
-    };
-  };
-
-  systemd.mounts = [
-    {
-      what = "/var/lib/nextcloud/cleanup";
-      where = "/var/lib/nextcloud/store-apps/cleanup";
-      type = "fuse.bindfs";
-      options = "uid=997,gid=997";
-      wantedBy = [ "multi-user.target" ];
-      enable = true;
-    }
-  ];
-
-  systemd.services."prepare-bindfs-mount" = {
-    script = ''
-      set -eu
-      ${pkgs.coreutils}/bin/mkdir -p /var/lib/nextcloud/store-apps
-      ${pkgs.coreutils}/bin/chown nextcloud:nextcloud /var/lib/nextcloud/store-apps
-    '';
-    before = [
-      "nextcloud-setup.service"
-      "var-lib-nextcloud-store\\x2dapps-calendar.mount"
-    ];
-    wantedBy = ["multi-user.target"];
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";
     };
   };
 
@@ -191,7 +146,7 @@
     };
   };
 
-  system.fsPackages = [ pkgs.bindfs ];
+  #system.fsPackages = [ pkgs.bindfs ];
 
   system.stateVersion = "23.11";
 

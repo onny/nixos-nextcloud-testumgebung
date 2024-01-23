@@ -1,33 +1,43 @@
 {
+  description = "Spawns lightweight nixos vm in a shell";
+
   inputs = {
-    # FIXME
-    #nixpkgs.url = "nixpkgs/23.11";
-    nixpkgs.url = "github:onny/nixpkgs/nextcloud-update2";
-    # Required for multi platform support
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "nixpkgs/nixos-23.11";
+    nixos-shell.url = "github:Mic92/nixos-shell";
   };
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-        start =
-          pkgs.writeShellScriptBin "start" ''
-            set -e
-            export QEMU_NET_OPTS="hostfwd=tcp::8080-:80,hostfwd=tcp::1433-:143,hostfwd=tcp::5877-:587"
-            ${pkgs.nixos-shell}/bin/nixos-shell vm-nextcloud.nix
-          '';
-      in
-      {
-        devShell = pkgs.mkShell {
-          packages = with pkgs; [
-            php82Packages.composer
-            phpunit
-            nodejs
-            nodePackages.rollup
-          ];
-        };
-        packages = { inherit start; };
-        defaultPackage = start;
-      });
-  }
+
+  outputs = { self, nixpkgs, nixos-shell }: let
+    pkgs = nixpkgs.legacyPackages.x86_64-linux;
+    start =
+      pkgs.writeShellScriptBin "start" ''
+        set -e
+        export QEMU_NET_OPTS="hostfwd=tcp::8080-:80,hostfwd=tcp::1433-:143,hostfwd=tcp::5877-:587"
+        ${pkgs.nixos-shell}/bin/nixos-shell --flake .
+       '';
+  in {
+
+    nixosConfigurations.vm = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        (import ./vm-nextcloud.nix)
+        nixos-shell.nixosModules.nixos-shell
+      ];
+    };
+
+    devShells.x86_64-linux = {
+      default = with pkgs; mkShell {
+        nativeBuildInputs = [
+          php82Packages.composer
+          phpunit
+          nodejs
+          nodePackages.rollup
+        ];
+      };
+    };
+
+    packages = { inherit start; };
+    defaultPackage.x86_64-linux = start;
+
+  };
+}
 
