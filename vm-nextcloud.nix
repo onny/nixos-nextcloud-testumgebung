@@ -5,13 +5,8 @@
     cores = 4;
   };
 
-  # FIXME
-  # is it possible to extend existing module with additional options using flake?
-  disabledModules = [
-    "services/web-apps/nextcloud.nix"
-  ];
   imports = [
-    "${fetchTarball "https://github.com/onny/nixpkgs/archive/nextcloud-ensureusers.tar.gz"}/nixos/modules/services/web-apps/nextcloud.nix"
+    ./nextcloud-ensure-users.nix
   ];
 
   nixpkgs = {
@@ -20,8 +15,6 @@
         # Remove first run wizard and password policy check from Nextcloud
         # package
         nextcloud28 = super.nextcloud28.overrideAttrs (oldAttrs: rec {
-          #patches = [];
-          #src = ./server;
           installPhase = oldAttrs.installPhase + ''
             mkdir -p $out/
             cp -R . $out/
@@ -40,25 +33,25 @@
     package = pkgs.nextcloud28;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
-      inherit contacts calendar;
-      # FIXME
-      # enable hmr when debug flag is enabled
-      hmr_enabler = pkgs.php.buildComposerProject (finalAttrs: {
-        pname = "hmr_enabler";
-        version = "1.0.0";
-        src = pkgs.fetchFromGitHub {
-          owner = "nextcloud";
-          repo = "hmr_enabler";
-          rev = "b8d3ad290bfa6fe407280587181a5167d71a2617";
-          hash = "sha256-yXFby5zlDiPdrw6HchmBoUdu9Zjfgp/bSu0G/isRpKg=";
-        };
-        composerNoDev = false;
-        vendorHash = "sha256-PCWWu/SqTUGnZXUnXyL8c72p8L14ZUqIxoa5i49XPH4=";
-        postInstall = ''
-          cp -r $out/share/php/hmr_enabler/* $out/
-          rm -r $out/share
-        '';
-      });
+     inherit contacts calendar;
+     # FIXME
+     # enable hmr when debug flag is enabled
+     hmr_enabler = pkgs.php.buildComposerProject (finalAttrs: {
+      pname = "hmr_enabler";
+      version = "1.0.0";
+      src = pkgs.fetchFromGitHub {
+        owner = "nextcloud";
+        repo = "hmr_enabler";
+        rev = "b8d3ad290bfa6fe407280587181a5167d71a2617";
+        hash = "sha256-yXFby5zlDiPdrw6HchmBoUdu9Zjfgp/bSu0G/isRpKg=";
+      };
+      composerNoDev = false;
+      vendorHash = "sha256-PCWWu/SqTUGnZXUnXyL8c72p8L14ZUqIxoa5i49XPH4=";
+      postInstall = ''
+        cp -r $out/share/php/hmr_enabler/* $out/
+        rm -r $out/share
+      '';
+     });
     };
     extraAppsEnable = true;
     config = {
@@ -89,21 +82,35 @@
     };
     appstoreEnable = true;
     configureRedis = true;
+    # FIXME rename to settings with 24.05
     extraOptions = {
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
       trusted_domains = [ "10.100.100.1" ];
       "integrity.check.disabled" = true;
       debug = true;
+      #apps_paths = [
+      #  {
+      #    path = "/var/lib/nextcloud/server/apps";
+      #    url = "/apps";
+      #    writable = false;
+      #  }
+      #];
     };
   };
 
   nixos-shell.mounts.extraMounts = {
-    "/var/lib/nextcloud/store-apps/cleanup" = {
-       target = /home/onny/projects/nixos-nextcloud-testumgebung/cleanup;
-       cache = "none";
-    };
+    #"/var/lib/nextcloud/store-apps/cleanup" = {
+    #   target = /home/onny/projects/nixos-nextcloud-testumgebung/cleanup;
+    #   cache = "none";
+    #};
+    #"/var/lib/nextcloud/server" = {
+    #   target = /home/onny/projects/nixos-nextcloud-testumgebung/server;
+    #   cache = "none";
+    #};
   };
+
+  #services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";
 
   # Setup mail server
   services.maddy = {
@@ -146,9 +153,12 @@
     };
   };
 
-  #system.fsPackages = [ pkgs.bindfs ];
-
   system.stateVersion = "23.11";
+
+  environment.systemPackages = with pkgs; [
+    sqlite sqldiff
+    unzip wget
+  ];
 
   documentation = {
     info.enable = false;

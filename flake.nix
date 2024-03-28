@@ -31,6 +31,8 @@
           phpunit
           nodejs
           nodePackages.rollup
+          act
+          npm-check-updates
         ];
       };
     };
