@@ -6,7 +6,7 @@
   };
 
   imports = [
-    ./nextcloud-ensure-users.nix
+    ./nextcloud-extras.nix
   ];
 
   nixpkgs = {
