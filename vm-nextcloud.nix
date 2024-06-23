@@ -14,7 +14,7 @@
       (self: super: {
         # Remove first run wizard and password policy check from Nextcloud
         # package
-        nextcloud28 = super.nextcloud28.overrideAttrs (oldAttrs: rec {
+        nextcloud29 = super.nextcloud29.overrideAttrs (oldAttrs: rec {
           installPhase = oldAttrs.installPhase + ''
             mkdir -p $out/
             cp -R . $out/
@@ -30,7 +30,7 @@
   # Setup Nextcloud including apps
   services.nextcloud = {
     enable = true;
-    package = pkgs.nextcloud28;
+    package = pkgs.nextcloud29;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
      inherit contacts calendar;
@@ -82,8 +82,7 @@
     };
     appstoreEnable = true;
     configureRedis = true;
-    # FIXME rename to settings with 24.05
-    extraOptions = {
+    settings = {
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
       trusted_domains = [ "10.100.100.1" ];
@@ -100,10 +99,10 @@
   };
 
   nixos-shell.mounts.extraMounts = {
-    #"/var/lib/nextcloud/store-apps/cleanup" = {
-    #   target = /home/onny/projects/nixos-nextcloud-testumgebung/cleanup;
-    #   cache = "none";
-    #};
+    "/var/lib/nextcloud/store-apps/cleanup" = {
+       target = /home/onny/projects/nixos-nextcloud-testumgebung/cleanup;
+       cache = "none";
+    };
     #"/var/lib/nextcloud/server" = {
     #   target = /home/onny/projects/nixos-nextcloud-testumgebung/server;
     #   cache = "none";
@@ -113,6 +112,7 @@
   #services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";
 
   # Setup mail server
+  # FIXME maybe switchto stalwart
   services.maddy = {
     enable = true;
     hostname = "localhost";
@@ -153,7 +153,7 @@
     };
   };
 
-  system.stateVersion = "23.11";
+  system.stateVersion = "24.05";
 
   environment.systemPackages = with pkgs; [
     sqlite sqldiff
