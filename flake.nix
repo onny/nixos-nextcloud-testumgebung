@@ -11,7 +11,7 @@
     start =
       pkgs.writeShellScriptBin "start" ''
         set -e
-        export QEMU_NET_OPTS="hostfwd=tcp::8080-:80,hostfwd=tcp::1433-:143,hostfwd=tcp::5877-:587"
+        export QEMU_NET_OPTS="hostfwd=tcp::8080-:80,hostfwd=tcp::8081-:8081,hostfwd=tcp::1433-:143,hostfwd=tcp::5877-:587"
         ${pkgs.nixos-shell}/bin/nixos-shell --flake .
        '';
   in {
@@ -27,7 +27,7 @@
     devShells.x86_64-linux = {
       default = with pkgs; mkShell {
         nativeBuildInputs = [
-          php82Packages.composer
+          php83Packages.composer
           phpunit
           nodejs
           nodePackages.rollup

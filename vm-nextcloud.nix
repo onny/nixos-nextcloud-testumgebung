@@ -33,7 +33,7 @@
     package = pkgs.nextcloud29;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
-     inherit contacts calendar;
+     inherit contacts calendar user_oidc;
      # FIXME
      # enable hmr when debug flag is enabled
      hmr_enabler = pkgs.php.buildComposerProject (finalAttrs: {
@@ -88,6 +88,8 @@
       trusted_domains = [ "10.100.100.1" ];
       "integrity.check.disabled" = true;
       debug = true;
+      # Required to allow insecure connection to KeyCloak on localhost
+      allow_local_remote_servers = true;
       #apps_paths = [
       #  {
       #    path = "/var/lib/nextcloud/server/apps";
@@ -153,11 +155,25 @@
     };
   };
 
+  # How to setup https://www.schiessle.org/articles/2023/07/04/nextcloud-and-openid-connect/
+  services.keycloak = {
+    enable = true;
+    settings = {
+      hostname = "localhost";
+      http-enabled = true;
+      http-port = 8081;
+      hostname-strict-https = false;
+    };
+    database.passwordFile = "${pkgs.writeText "dbPassword" ''test123''}";
+  };
+
   system.stateVersion = "24.05";
 
   environment.systemPackages = with pkgs; [
-    sqlite sqldiff
-    unzip wget
+    litecli
+    sqldiff
+    unzip
+    wget
   ];
 
   documentation = {
