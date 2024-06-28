@@ -15,6 +15,12 @@
         # Remove first run wizard and password policy check from Nextcloud
         # package
         nextcloud29 = super.nextcloud29.overrideAttrs (oldAttrs: rec {
+          version = "29.0.3";
+          # FIXME
+          src = builtins.fetchurl {
+            url = "https://download.nextcloud.com/server/releases/nextcloud-${version}.tar.bz2";
+            sha256 = "1m3zvcf77mrb7bhhn4hb53ry5f1nqwl5p3sdhkw2f28j9iv6x6d5";
+          };
           installPhase = oldAttrs.installPhase + ''
             mkdir -p $out/
             cp -R . $out/
@@ -105,6 +111,10 @@
        target = /home/onny/projects/nixos-nextcloud-testumgebung/cleanup;
        cache = "none";
     };
+    "/var/lib/nextcloud/store-apps/files_mindmap" = {
+       target = /home/onny/projects/nixos-nextcloud-testumgebung/files_mindmap;
+       cache = "none";
+    };
     #"/var/lib/nextcloud/server" = {
     #   target = /home/onny/projects/nixos-nextcloud-testumgebung/server;
     #   cache = "none";
@@ -114,30 +124,56 @@
   #services.nginx.virtualHosts."localhost".root = lib.mkForce "/var/lib/nextcloud/server";
 
   # Setup mail server
-  # FIXME maybe switchto stalwart
-  services.maddy = {
+  services.stalwart-mail = {
     enable = true;
-    hostname = "localhost";
-    primaryDomain = "localhost";
-    localDomains = [
-      "$(primary_domain)"
-      "10.0.2.0/24"
-      "10.100.100.1"
-      "127.0.0.1"
-    ];
-    # Disable any sender vhttps://github.com/obsidiansystems/ipfs-nix-guide/alidation checks
-    config = lib.concatStrings (
-      builtins.match "(.*)authorize_sender.*identity\n[ ]+\}(.*)" options.services.maddy.config.default
-    );
-    ensureAccounts = [
-      "user1@localhost"
-      "user2@localhost"
-      "admin@localhost"
-    ];
-    ensureCredentials = {
-      "user1@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
-      "user2@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
-      "admin@localhost".passwordFile = "${pkgs.writeText "password" "test123"}";
+    # FIXME remove package definition in 24.11
+    package = pkgs.stalwart-mail;
+    settings = {
+      server = {
+        hostname = "localhost";
+        tls.enable = false;
+        listener = {
+          "smtp-submission" = {
+            bind = [ "[::]:587" ];
+            protocol = "smtp";
+          };
+          "imap" = {
+            bind = [ "[::]:143" ];
+            protocol = "imap";
+          };
+        };
+      };
+      imap.auth.allow-plain-text = true;
+      session.auth = {
+        mechanisms = "[plain, login]";
+        directory = "'in-memory'";
+      };
+      storage.directory = "in-memory";
+      session.rcpt.directory = "'in-memory'";
+      queue.outbound.next-hop = "'local'";
+      directory."in-memory" = {
+        type = "memory";
+        principals = [
+          {
+            class = "individual";
+            name = "user1";
+            secret = "test123";
+            email = [ "user1@localhost" ];
+          }
+          {
+            class = "individual";
+            name = "user2";
+            secret = "test123";
+            email = [ "user2@localhost" ];
+          }
+          {
+            class = "individual";
+            name = "admin";
+            secret = "test123";
+            email = [ "admin@localhost" ];
+          }
+        ];
+      };
     };
   };
 
@@ -150,7 +186,7 @@
       auth = "login";
       tls = "off";
       from = "admin@localhost";
-      user = "admin@localhost";
+      user = "admin";
       password = "test123";
     };
   };
