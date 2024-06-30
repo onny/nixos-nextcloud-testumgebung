@@ -5,7 +5,14 @@
     cores = 4;
   };
 
+  # Workaround for bug, disable pretty urls
+  # https://github.com/nextcloud/server/issues/44685
+  disabledModules = [
+    "services/web-apps/nextcloud.nix"
+  ];
+
   imports = [
+    ./nextcloud.nix
     ./nextcloud-extras.nix
   ];
 
@@ -15,12 +22,6 @@
         # Remove first run wizard and password policy check from Nextcloud
         # package
         nextcloud29 = super.nextcloud29.overrideAttrs (oldAttrs: rec {
-          version = "29.0.3";
-          # FIXME
-          src = builtins.fetchurl {
-            url = "https://download.nextcloud.com/server/releases/nextcloud-${version}.tar.bz2";
-            sha256 = "1m3zvcf77mrb7bhhn4hb53ry5f1nqwl5p3sdhkw2f28j9iv6x6d5";
-          };
           installPhase = oldAttrs.installPhase + ''
             mkdir -p $out/
             cp -R . $out/
@@ -65,6 +66,10 @@
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
     };
     ensureUsers = {
+      admin = {
+        email = "admin@localhost";
+        passwordFile = "${pkgs.writeText "password" "test123"}";
+      };
       user1 = {
         email = "user1@localhost";
         passwordFile = "${pkgs.writeText "password" "test123"}";
@@ -111,8 +116,8 @@
        target = /home/onny/projects/nixos-nextcloud-testumgebung/cleanup;
        cache = "none";
     };
-    "/var/lib/nextcloud/store-apps/files_mindmap" = {
-       target = /home/onny/projects/nixos-nextcloud-testumgebung/files_mindmap;
+    "/var/lib/nextcloud/store-apps/files_mindmap2" = {
+       target = /home/onny/projects/nixos-nextcloud-testumgebung/files_mindmap2;
        cache = "none";
     };
     #"/var/lib/nextcloud/server" = {
@@ -129,6 +134,12 @@
     # FIXME remove package definition in 24.11
     package = pkgs.stalwart-mail;
     settings = {
+      tracer.stdout = {
+        type = "stdout";
+        level = "debug";
+        enable = true;
+        ansi = true;
+      };
       server = {
         hostname = "localhost";
         tls.enable = false;
