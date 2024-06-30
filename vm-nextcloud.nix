@@ -94,6 +94,7 @@
     appstoreEnable = true;
     configureRedis = true;
     settings = {
+      log_type = "syslog";
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
       trusted_domains = [ "10.100.100.1" ];
@@ -221,7 +222,10 @@
     sqldiff
     unzip
     wget
+    tmux
   ];
+
+  services.getty.autologinUser = "root";
 
   documentation = {
     info.enable = false;
