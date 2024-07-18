@@ -73,6 +73,14 @@ in {
         '';
       };
 
+      extraOCCCommands = mkOption {
+        default = "";
+        type = types.lines;
+        example = "nextcloud-occ app:enable cleanup";
+        description = lib.mdDoc ''
+          Extra OCC commands which get executed after setup.
+        '';
+      };
     };
   };
 
@@ -92,6 +100,15 @@ in {
             ''}
           '') cfg.ensureUsers)}
         ''}
+      '';
+      wantedBy = [ "multi-user.target" ];
+      after = ["nextcloud-setup.service"];
+    };
+
+    systemd.services.nextcloud-extra-occ-commands = {
+      enable = true;
+      script = ''
+        ${cfg.extraOCCCommands}
       '';
       wantedBy = [ "multi-user.target" ];
       after = ["nextcloud-setup.service"];

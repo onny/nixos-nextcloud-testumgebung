@@ -5,14 +5,7 @@
     cores = 4;
   };
 
-  # Workaround for bug, disable pretty urls
-  # https://github.com/nextcloud/server/issues/44685
-  disabledModules = [
-    "services/web-apps/nextcloud.nix"
-  ];
-
   imports = [
-    ./nextcloud.nix
     ./nextcloud-extras.nix
   ];
 
@@ -93,8 +86,12 @@
     };
     appstoreEnable = true;
     configureRedis = true;
+    extraOCCCommands = ''
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ app:enable cleanup
+    '';
     settings = {
-      log_type = "syslog";
+      log_type = "file";
+      loglevel = 1;
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
       trusted_domains = [ "10.100.100.1" ];
