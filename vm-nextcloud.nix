@@ -70,6 +70,13 @@
     configureRedis = true;
     extraOCCCommands = ''
       ${config.services.nextcloud.occ}/bin/nextcloud-occ app:enable cleanup
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ user_oidc:provider Keycloak \
+        --clientid="nextcloud" \
+        --clientsecret="4KoWtOWtg8xpRdAoorNan4PdfFMATo91" \
+        --discoveryuri="http://localhost:8081/realms/OIDCDemo/.well-known/openid-configuration" \
+        --unique-uid=0 \
+        --mapping-uid=preferred_username \
+        --no-interaction
     '';
     settings = {
       log_type = "file";
@@ -183,6 +190,7 @@
   };
 
   # How to setup https://www.schiessle.org/articles/2023/07/04/nextcloud-and-openid-connect/
+  # FIXME auto setup realm https://github.com/NixOS/nixpkgs/pull/273833
   services.keycloak = {
     enable = true;
     settings = {
