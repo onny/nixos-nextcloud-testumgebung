@@ -2,7 +2,9 @@
   description = "Spawns lightweight nixos vm in a shell";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-24.05";
+    # FIXME
+    #nixpkgs.url = "nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:onny/nixpkgs/hmr-enabler";
     nixos-shell.url = "github:Mic92/nixos-shell";
   };
 

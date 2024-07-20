@@ -33,25 +33,7 @@
     package = pkgs.nextcloud29;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
-     inherit contacts calendar user_oidc;
-     # FIXME
-     # enable hmr when debug flag is enabled
-     hmr_enabler = pkgs.php.buildComposerProject (finalAttrs: {
-      pname = "hmr_enabler";
-      version = "1.0.0";
-      src = pkgs.fetchFromGitHub {
-        owner = "nextcloud";
-        repo = "hmr_enabler";
-        rev = "b8d3ad290bfa6fe407280587181a5167d71a2617";
-        hash = "sha256-yXFby5zlDiPdrw6HchmBoUdu9Zjfgp/bSu0G/isRpKg=";
-      };
-      composerNoDev = false;
-      vendorHash = "sha256-PCWWu/SqTUGnZXUnXyL8c72p8L14ZUqIxoa5i49XPH4=";
-      postInstall = ''
-        cp -r $out/share/php/hmr_enabler/* $out/
-        rm -r $out/share
-      '';
-     });
+     inherit contacts calendar user_oidc hmr_enabler;
     };
     extraAppsEnable = true;
     config = {
