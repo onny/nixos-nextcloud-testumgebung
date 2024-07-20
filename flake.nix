@@ -6,9 +6,10 @@
     #nixpkgs.url = "nixpkgs/nixos-24.05";
     nixpkgs.url = "github:onny/nixpkgs/hmr-enabler";
     nixos-shell.url = "github:Mic92/nixos-shell";
+    keycloak-realms.url = "github:rorosen/nixpkgs/keycloak-realm-import";
   };
 
-  outputs = { self, nixpkgs, nixos-shell }: let
+  outputs = { self, nixpkgs, nixos-shell, ... }@inputs: let
     pkgs = nixpkgs.legacyPackages.x86_64-linux;
     start =
       pkgs.writeShellScriptBin "start" ''
@@ -20,6 +21,7 @@
 
     nixosConfigurations.vm = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
+      specialArgs.inputs = inputs;
       modules = [
         (import ./vm-nextcloud.nix)
         nixos-shell.nixosModules.nixos-shell

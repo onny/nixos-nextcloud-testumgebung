@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "keycloak-realms": {
+      "locked": {
+        "lastModified": 1721493163,
+        "narHash": "sha256-VmHIhv0VKcpL4IhP8kc5gIeIZNMS4Df9yHlPVc7LAlg=",
+        "owner": "rorosen",
+        "repo": "nixpkgs",
+        "rev": "162639ea7c3ac6578e77698ce71c2b1dc49ceffd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rorosen",
+        "ref": "keycloak-realm-import",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixos-shell": {
       "inputs": {
         "nixpkgs": "nixpkgs"
@@ -51,6 +67,7 @@
     },
     "root": {
       "inputs": {
+        "keycloak-realms": "keycloak-realms",
         "nixos-shell": "nixos-shell",
         "nixpkgs": "nixpkgs_2"
       }

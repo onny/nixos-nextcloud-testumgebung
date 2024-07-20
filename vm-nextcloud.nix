@@ -1,12 +1,17 @@
-{ pkgs, config, lib, options, ... }: {
+{ pkgs, config, lib, options, inputs, ... }: {
 
   virtualisation = {
     memorySize = 8000;
     cores = 4;
   };
 
+  disabledModules = [
+    "services/web-apps/keycloak.nix"
+  ];
+
   imports = [
     ./nextcloud-extras.nix
+    "${inputs.keycloak-realms}/nixos/modules/services/web-apps/keycloak.nix"
   ];
 
   nixpkgs = {
@@ -191,7 +196,32 @@
 
   # How to setup https://www.schiessle.org/articles/2023/07/04/nextcloud-and-openid-connect/
   # FIXME auto setup realm https://github.com/NixOS/nixpkgs/pull/273833
-  services.keycloak = {
+  services.keycloak = let
+    realm = {
+      realm = "OIDCDemo";
+      enabled = true;
+      clients = [{
+        clientId = "nextcloud";
+        secret = "4KoWtOWtg8xpRdAoorNan4PdfFMATo91";
+        rootUrl = "http://localhost:8080";
+        redirectUris = [
+          "http://localhost:8080/*"
+        ];
+      }];
+      users = [{
+        enabled = true;
+        firstName = "Hans";
+        lastName = "Wurst";
+        username = "onny";
+        email = "onny@localhost";
+        credentials = [{
+          type = "password";
+          temporary = false;
+          value = "test123";
+        }];
+      }];
+    };
+  in {
     enable = true;
     settings = {
       hostname = "localhost";
@@ -200,6 +230,7 @@
       hostname-strict-https = false;
     };
     database.passwordFile = "${pkgs.writeText "dbPassword" ''test123''}";
+    realmFiles.OIDCDemo = builtins.toJSON realm;
   };
 
   system.stateVersion = "24.05";
@@ -218,6 +249,12 @@
     info.enable = false;
     man.enable = false;
     nixos.enable = false;
+  };
+
+  nix = {
+    package = pkgs.nixFlakes;
+    registry.nixpkgs.flake = inputs.nixpkgs;
+    settings.experimental-features = [ "nix-command" "flakes" ];
   };
 
 }
