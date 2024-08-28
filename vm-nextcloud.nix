@@ -230,7 +230,9 @@
       hostname-strict-https = false;
     };
     database.passwordFile = "${pkgs.writeText "dbPassword" ''test123''}";
-    realmFiles.OIDCDemo = builtins.toJSON realm;
+    realmFiles = [
+      (pkgs.writeText "OIDCDemo.json" (builtins.toJSON realm))
+    ];
   };
 
   system.stateVersion = "24.05";
