@@ -1,21 +1,5 @@
 {
   "nodes": {
-    "eslint": {
-      "locked": {
-        "lastModified": 1724837771,
-        "narHash": "sha256-5j1sZjDSnrNqrVy7rR92tl5PByvKxc2NMSI7CMXk17g=",
-        "owner": "onny",
-        "repo": "nixpkgs",
-        "rev": "11f8b6c9852ccc560f63e659286e27ce3162bcb3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "onny",
-        "ref": "eslint",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "keycloak-realms": {
       "locked": {
         "lastModified": 1721562747,
@@ -28,22 +12,6 @@
       "original": {
         "owner": "rorosen",
         "ref": "keycloak-realm-import",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "licensedigger": {
-      "locked": {
-        "lastModified": 1724834768,
-        "narHash": "sha256-VXI8rKoDiq+YQxUOt+AQ2NgS+BoneS/z2NVa0+EZztU=",
-        "owner": "onny",
-        "repo": "nixpkgs",
-        "rev": "711ae571d2d4f63dd3a02feefb97c4fecf6840a3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "onny",
-        "ref": "licensedigger",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -83,11 +51,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1724830280,
-        "narHash": "sha256-+gOB/YVMvgUU9C46APzTN5BgN6zetHyQNzJ9e1FnEJo=",
+        "lastModified": 1725189734,
+        "narHash": "sha256-tkg9tgohtzIvuvb+DeryiWIKanxyYBWGQEvvsMHzT9U=",
         "owner": "onny",
         "repo": "nixpkgs",
-        "rev": "1ae627bb9595f0c761275d2755ec34a4d8709bc2",
+        "rev": "10f6fb34be099e8c8a1251a5cc65dbbff36bd9b1",
         "type": "github"
       },
       "original": {
@@ -99,9 +67,7 @@
     },
     "root": {
       "inputs": {
-        "eslint": "eslint",
         "keycloak-realms": "keycloak-realms",
-        "licensedigger": "licensedigger",
         "nixos-shell": "nixos-shell",
         "nixpkgs": "nixpkgs_2"
       }

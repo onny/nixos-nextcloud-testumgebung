@@ -7,9 +7,6 @@
     nixpkgs.url = "github:onny/nixpkgs/hmr-enabler";
     nixos-shell.url = "github:Mic92/nixos-shell";
     keycloak-realms.url = "github:rorosen/nixpkgs/keycloak-realm-import";
-    # FIXME
-    licensedigger.url = "github:onny/nixpkgs/licensedigger";
-    eslint.url = "github:onny/nixpkgs/eslint";
   };
 
   outputs = { self, nixpkgs, nixos-shell, ... }@inputs: let
@@ -32,16 +29,16 @@
 
     devShells.x86_64-linux = {
       default = with pkgs; mkShell {
-        nativeBuildInputs = with nodePackages; [
-          php84Packages.composer
+        nativeBuildInputs = with php84Packages; [
+          composer
+          php-cs-fixer
           phpunit
           nodejs
-          rollup
+          nodePackages.rollup
           act
           npm-check-updates
-          # FIXME
-          inputs.licensedigger.legacyPackages.x86_64-linux.licensedigger
-          (inputs.eslint.legacyPackages.x86_64-linux.eslint.overrideAttrs (oldAttrs: rec {
+          licensedigger
+          (eslint.overrideAttrs (oldAttrs: rec {
             version = "8.57.0";
             src = fetchFromGitHub {
               owner = "eslint";
