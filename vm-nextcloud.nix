@@ -122,7 +122,7 @@
 
   # Setup mail server
   services.stalwart-mail = {
-    enable = true;
+    enable = false;
     # FIXME remove package definition in 24.11
     package = pkgs.stalwart-mail;
     settings = {

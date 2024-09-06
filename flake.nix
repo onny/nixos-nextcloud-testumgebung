@@ -11,6 +11,7 @@
 
   outputs = { self, nixpkgs, nixos-shell, ... }@inputs: let
     pkgs = nixpkgs.legacyPackages.x86_64-linux;
+
     start =
       pkgs.writeShellScriptBin "start" ''
         set -e
@@ -29,7 +30,8 @@
 
     devShells.x86_64-linux = {
       default = with pkgs; mkShell {
-        nativeBuildInputs = with php84Packages; [
+        # FIXME "composer lint" only works with PHP 8.2 at the moment
+        nativeBuildInputs = with php82Packages; [
           composer
           php-cs-fixer
           phpunit

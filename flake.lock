@@ -51,16 +51,16 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1725189734,
-        "narHash": "sha256-tkg9tgohtzIvuvb+DeryiWIKanxyYBWGQEvvsMHzT9U=",
+        "lastModified": 1725625109,
+        "narHash": "sha256-pMOPVZHRz7fJhuj1lfRqyJTWjAbM96vyrc0btDa56Qc=",
         "owner": "onny",
         "repo": "nixpkgs",
-        "rev": "10f6fb34be099e8c8a1251a5cc65dbbff36bd9b1",
+        "rev": "28cd3a0d7e4412e337632c1d6666d8de01cf7183",
         "type": "github"
       },
       "original": {
         "owner": "onny",
-        "ref": "hmr-enabler",
+        "ref": "composer-update",
         "repo": "nixpkgs",
         "type": "github"
       }
