@@ -4,7 +4,7 @@
   inputs = {
     # FIXME
     #nixpkgs.url = "nixpkgs/nixos-24.05";
-    nixpkgs.url = "github:onny/nixpkgs/hmr-enabler";
+    nixpkgs.url = "nixpkgs/master";
     nixos-shell.url = "github:Mic92/nixos-shell";
     keycloak-realms.url = "github:rorosen/nixpkgs/keycloak-realm-import";
   };
