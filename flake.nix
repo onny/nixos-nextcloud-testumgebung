@@ -4,7 +4,7 @@
   inputs = {
     # FIXME
     #nixpkgs.url = "nixpkgs/nixos-24.05";
-    nixpkgs.url = "nixpkgs/master";
+    nixpkgs.url = "github:onny/nixpkgs/nextcloud-update10";
     nixos-shell.url = "github:Mic92/nixos-shell";
     keycloak-realms.url = "github:rorosen/nixpkgs/keycloak-realm-import";
   };
@@ -38,8 +38,10 @@
           nodejs
           nodePackages.rollup
           act
+	  psalm
           npm-check-updates
           licensedigger
+	  reuse
           (eslint.overrideAttrs (oldAttrs: rec {
             version = "8.57.0";
             src = fetchFromGitHub {
