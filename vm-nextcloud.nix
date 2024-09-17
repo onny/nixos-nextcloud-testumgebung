@@ -10,7 +10,7 @@
   ];
 
   imports = [
-    ./nextcloud-extras.nix
+    #./nextcloud-extras.nix
     "${inputs.keycloak-realms}/nixos/modules/services/web-apps/keycloak.nix"
   ];
 
@@ -19,7 +19,7 @@
       (self: super: {
         # Remove first run wizard and password policy check from Nextcloud
         # package
-        nextcloud29 = super.nextcloud29.overrideAttrs (oldAttrs: rec {
+        nextcloud30 = super.nextcloud30.overrideAttrs (oldAttrs: rec {
           installPhase = oldAttrs.installPhase + ''
             mkdir -p $out/
             cp -R . $out/
@@ -35,7 +35,7 @@
   # Setup Nextcloud including apps
   services.nextcloud = {
     enable = true;
-    package = pkgs.nextcloud29;
+    package = pkgs.nextcloud30;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
      inherit contacts calendar user_oidc hmr_enabler;
@@ -45,20 +45,20 @@
       adminuser = "admin";
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
     };
-    ensureUsers = {
-      admin = {
-        email = "admin@localhost";
-        passwordFile = "${pkgs.writeText "password" "test123"}";
-      };
-      user1 = {
-        email = "user1@localhost";
-        passwordFile = "${pkgs.writeText "password" "test123"}";
-      };
-      user2 = {
-        email = "user2@localhost";
-        passwordFile = "${pkgs.writeText "password" "test123"}";
-      };
-    };
+    #ensureUsers = {
+    #  admin = {
+    #    email = "admin@localhost";
+    #    passwordFile = "${pkgs.writeText "password" "test123"}";
+    #  };
+    #  user1 = {
+    #    email = "user1@localhost";
+    #    passwordFile = "${pkgs.writeText "password" "test123"}";
+    #  };
+    #  user2 = {
+    #    email = "user2@localhost";
+    #    passwordFile = "${pkgs.writeText "password" "test123"}";
+    #  };
+    #};
     phpPackage = lib.mkForce (pkgs.php.buildEnv {
       extensions = ({ enabled, all }: enabled ++ (with all; [
         xdebug
@@ -73,16 +73,16 @@
     };
     appstoreEnable = true;
     configureRedis = true;
-    extraOCCCommands = ''
-      ${config.services.nextcloud.occ}/bin/nextcloud-occ app:enable cleanup
-      ${config.services.nextcloud.occ}/bin/nextcloud-occ user_oidc:provider Keycloak \
-        --clientid="nextcloud" \
-        --clientsecret="4KoWtOWtg8xpRdAoorNan4PdfFMATo91" \
-        --discoveryuri="http://localhost:8081/realms/OIDCDemo/.well-known/openid-configuration" \
-        --unique-uid=0 \
-        --mapping-uid=preferred_username \
-        --no-interaction
-    '';
+    #extraOCCCommands = ''
+    #  ${config.services.nextcloud.occ}/bin/nextcloud-occ app:enable cleanup
+    #  ${config.services.nextcloud.occ}/bin/nextcloud-occ user_oidc:provider Keycloak \
+    #    --clientid="nextcloud" \
+    #    --clientsecret="4KoWtOWtg8xpRdAoorNan4PdfFMATo91" \
+    #    --discoveryuri="http://localhost:8081/realms/OIDCDemo/.well-known/openid-configuration" \
+    #    --unique-uid=0 \
+    #    --mapping-uid=preferred_username \
+    #    --no-interaction
+    #'';
     settings = {
       log_type = "file";
       loglevel = 1;
@@ -108,10 +108,10 @@
        target = /home/onny/projects/nixos-nextcloud-testumgebung/cleanup;
        cache = "none";
     };
-    "/var/lib/nextcloud/store-apps/files_mindmap2" = {
-       target = /home/onny/projects/nixos-nextcloud-testumgebung/files_mindmap2;
-       cache = "none";
-    };
+    #"/var/lib/nextcloud/store-apps/files_mindmap2" = {
+    #   target = /home/onny/projects/nixos-nextcloud-testumgebung/files_mindmap2;
+    #   cache = "none";
+    #};
     #"/var/lib/nextcloud/server" = {
     #   target = /home/onny/projects/nixos-nextcloud-testumgebung/server;
     #   cache = "none";
