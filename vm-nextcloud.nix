@@ -1,4 +1,11 @@
-{ pkgs, config, lib, options, inputs, ... }: {
+{
+  pkgs,
+  config,
+  lib,
+  options,
+  inputs,
+  ...
+}: {
 
   virtualisation = {
     memorySize = 8000;
@@ -19,7 +26,7 @@
       (self: super: {
         # Remove first run wizard and password policy check from Nextcloud
         # package
-        nextcloud29 = super.nextcloud29.overrideAttrs (oldAttrs: rec {
+        nextcloud30 = super.nextcloud30.overrideAttrs (oldAttrs: rec {
           installPhase = oldAttrs.installPhase + ''
             mkdir -p $out/
             cp -R . $out/
@@ -35,10 +42,10 @@
   # Setup Nextcloud including apps
   services.nextcloud = {
     enable = true;
-    package = pkgs.nextcloud29;
+    package = pkgs.nextcloud30;
     hostName = "localhost";
     extraApps = with config.services.nextcloud.package.packages.apps; {
-     inherit contacts calendar user_oidc hmr_enabler; # whiteboard;
+      inherit contacts calendar user_oidc hmr_enabler; # files_mindmap;
     };
     extraAppsEnable = true;
     config = {
@@ -76,6 +83,7 @@
     configureRedis = true;
     extraOCCCommands = ''
       ${config.services.nextcloud.occ}/bin/nextcloud-occ app:enable cleanup
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ app:enable files_mindmap2
       ${config.services.nextcloud.occ}/bin/nextcloud-occ user_oidc:provider Keycloak \
         --clientid="nextcloud" \
         --clientsecret="4KoWtOWtg8xpRdAoorNan4PdfFMATo91" \
@@ -110,7 +118,7 @@
        cache = "none";
     };
     #"/var/lib/nextcloud/store-apps/files_mindmap2" = {
-    #   target = /home/onny/projects/nixos-nextcloud-testumgebung/files_mindmap2;
+    #   target = /home/onny/projects/files_mindmap2;
     #   cache = "none";
     #};
     #"/var/lib/nextcloud/server" = {
@@ -124,8 +132,6 @@
   # Setup mail server
   services.stalwart-mail = {
     enable = false;
-    # FIXME remove package definition in 24.11
-    package = pkgs.stalwart-mail;
     settings = {
       tracer.stdout = {
         type = "stdout";
@@ -236,7 +242,7 @@
     ];
   };
 
-  system.stateVersion = "24.05";
+  system.stateVersion = "24.11";
 
   environment.systemPackages = with pkgs; [
     litecli
@@ -255,7 +261,7 @@
   };
 
   nix = {
-    package = pkgs.nixFlakes;
+    package = pkgs.nixVersions.stable;
     registry.nixpkgs.flake = inputs.nixpkgs;
     settings.experimental-features = [ "nix-command" "flakes" ];
   };

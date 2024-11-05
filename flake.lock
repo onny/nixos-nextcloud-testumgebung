@@ -21,11 +21,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1723616342,
-        "narHash": "sha256-plRKXQqww7easx0wgGKAkOJH1TW/PeeB20dq9XUN8J4=",
+        "lastModified": 1728308049,
+        "narHash": "sha256-wjAkG8f5orZ4+wgXmEaFAJkVJS6ORqfgM0zzLEvbUNw=",
         "owner": "Mic92",
         "repo": "nixos-shell",
-        "rev": "93e314cdd16d4c3e3baf25b54734461c45a5d1ad",
+        "rev": "9373ca9522f844a3b8029720c74f340e560e4462",
         "type": "github"
       },
       "original": {
@@ -51,18 +51,17 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1726917160,
-        "narHash": "sha256-IZe3LIHywCj4OGIXg1cOIPmQgt/eHe1dtymEgDIuS7U=",
-        "owner": "onny",
+        "lastModified": 1730825790,
+        "narHash": "sha256-3mg9ETbJWsXrF4iMaIACVfiiZe8I/+E9Wxet7C78d1I=",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "fd993fb42f510f748206b471cc0d1d26e134eefb",
+        "rev": "ec3d46cd68eff268ed54793ab909d700117f6a66",
         "type": "github"
       },
       "original": {
-        "owner": "onny",
-        "ref": "nextcloud-update10",
-        "repo": "nixpkgs",
-        "type": "github"
+        "id": "nixpkgs",
+        "ref": "master",
+        "type": "indirect"
       }
     },
     "root": {
